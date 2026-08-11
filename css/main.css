@@ -1,0 +1,456 @@
+/* ============================================
+   NOTEPAD ONLINE - MAIN CSS
+   Base resets, typography, variables, and utilities
+   ============================================ */
+
+:root {
+    /* ====== COLOR PALETTE ====== */
+    --bg-cream: #F8F7F2;
+    --bg-light: #FFFFFF;
+    --bg-dark: #1E1E1E;
+    --bg-dark-alt: #252526;
+    
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-light: #AAAAAA;
+    --text-dark: #E0E0E0;
+    
+    --accent-blue: #0078D4;
+    --accent-green: #107C10;
+    --accent-red: #E81123;
+    --accent-orange: #FF8C00;
+    
+    --border-color: #D0D0D0;
+    --border-dark: #3E3E42;
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+    
+    /* ====== SPACING & SIZING ====== */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    --border-radius-sm: 2px;
+    --border-radius-md: 4px;
+    --border-radius-lg: 8px;
+    
+    /* ====== TYPOGRAPHY ====== */
+    --font-mono: 'Fira Code', 'Courier New', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+    --font-size-2xl: 20px;
+    
+    --line-height-tight: 1.3;
+    --line-height-base: 1.5;
+    --line-height-relaxed: 1.75;
+    
+    /* ====== Z-INDEX STACK ====== */
+    --z-dock: 1000;
+    --z-window: 100;
+    --z-modal: 2000;
+    --z-tooltip: 1500;
+    --z-context-menu: 1100;
+    
+    /* ====== TRANSITIONS ====== */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* ====== DARK MODE ====== */
+    color-scheme: light;
+}
+
+/* Dark Mode Overrides */
+body.dark-mode {
+    --bg-cream: #1E1E1E;
+    --bg-light: #252526;
+    --bg-dark: #1E1E1E;
+    --text-primary: #E0E0E0;
+    --text-secondary: #B0B0B0;
+    --text-light: #707070;
+    --text-dark: #333333;
+    --border-color: #3E3E42;
+    color-scheme: dark;
+}
+
+/* ============================================
+   GLOBAL RESETS & BASE STYLES
+   ============================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--text-primary);
+    background-color: var(--bg-cream);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: var(--line-height-tight);
+    margin-bottom: var(--spacing-sm);
+}
+
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: var(--font-size-lg); }
+h4 { font-size: var(--font-size-base); }
+h5 { font-size: var(--font-size-sm); }
+h6 { font-size: var(--font-size-xs); }
+
+p {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+}
+
+a {
+    color: var(--accent-blue);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code, pre {
+    font-family: var(--font-mono);
+    background-color: var(--bg-light);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+input, textarea, select, button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+input, textarea, select {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}
+
+input[type="color"] {
+    cursor: pointer;
+    padding: 4px;
+    height: 40px;
+}
+
+input[type="checkbox"], input[type="radio"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    margin-right: var(--spacing-sm);
+    vertical-align: middle;
+    accent-color: var(--accent-blue);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--accent-blue);
+    color: white;
+    font-weight: 500;
+    transition: background-color var(--transition-fast), box-shadow var(--transition-fast);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+button:hover {
+    background-color: #005a9e;
+    box-shadow: var(--shadow-sm);
+}
+
+button:active {
+    background-color: #004578;
+    transform: scale(0.98);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #005a9e;
+}
+
+.btn-secondary {
+    background-color: var(--text-light);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--text-secondary);
+    color: white;
+}
+
+.btn-sm {
+    padding: 4px 12px;
+    font-size: var(--font-size-sm);
+}
+
+.btn-close {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+    border-radius: var(--border-radius-md);
+}
+
+.btn-close:hover {
+    background-color: var(--border-color);
+}
+
+.btn-menu-icon {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background-color: transparent;
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-md);
+}
+
+.btn-menu-icon:hover {
+    background-color: var(--border-color);
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.hidden {
+    display: none !important;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.gap-sm {
+    gap: var(--spacing-sm);
+}
+
+.gap-md {
+    gap: var(--spacing-md);
+}
+
+.p-sm {
+    padding: var(--spacing-sm);
+}
+
+.p-md {
+    padding: var(--spacing-md);
+}
+
+.m-sm {
+    margin: var(--spacing-sm);
+}
+
+.m-md {
+    margin: var(--spacing-md);
+}
+
+.rounded-sm {
+    border-radius: var(--border-radius-sm);
+}
+
+.rounded-md {
+    border-radius: var(--border-radius-md);
+}
+
+.shadow-sm {
+    box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+    box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-sm {
+    font-size: var(--font-size-sm);
+}
+
+.text-lg {
+    font-size: var(--font-size-lg);
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.font-mono {
+    font-family: var(--font-mono);
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.overflow-auto {
+    overflow: auto;
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-light);
+}
+
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
+
+::selection {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+::-moz-selection {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    body {
+        background-color: white;
+    }
+
+    #desktop-canvas,
+    #top-menu,
+    #bottom-dock,
+    .window-controls {
+        display: none !important;
+    }
+
+    textarea {
+        border: none;
+        background-color: white;
+    }
+}

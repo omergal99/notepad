@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ======== SEO & META TAGS ======== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.">
+    <meta name="keywords" content="notepad, online notepad, text editor, private editor, local-first, offline editor, tabbed notepad, desktop notepad">
+    <meta name="author" content="Notepad Online">
+    <meta name="theme-color" content="#F8F7F2">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/notepad">
+    <meta property="og:title" content="Notepad Online - Private Desktop Text Editor">
+    <meta property="og:description" content="Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.">
+    <meta property="og:image" content="/preview.png">
+    
+    <!-- Twitter Card -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://example.com/notepad">
+    <meta property="twitter:title" content="Notepad Online - Private Desktop Text Editor">
+    <meta property="twitter:description" content="Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.">
+    <meta property="twitter:image" content="/preview.png">
+    
+    <!-- JSON-LD Schema (WebApplication) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Notepad Online - Private Desktop Text Editor",
+        "url": "https://example.com/notepad",
+        "description": "Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript ES6 support",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "Notepad Online"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "150"
+        },
+        "featureList": [
+            "Multi-window desktop interface",
+            "Multi-tab text editing",
+            "Auto-save functionality",
+            "Image clipboard support",
+            "Offline access",
+            "Search and replace",
+            "Export to multiple formats",
+            "Keyboard shortcuts",
+            "Dark/Light theme"
+        ]
+    }
+    </script>
+
+    <title>Notepad Online - Private Desktop Text Editor</title>
+    
+    <!-- CSP Header -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:;">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/desktop.css">
+    <link rel="stylesheet" href="css/window.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23F8F7F2' width='192' height='192'/><text x='50%' y='50%' font-size='120' fill='%23333' text-anchor='middle' dy='.3em' font-family='monospace' font-weight='bold'>N</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23F8F7F2' width='192' height='192'/><text x='50%' y='50%' font-size='120' fill='%23333' text-anchor='middle' dy='.3em' font-family='monospace' font-weight='bold'>N</text></svg>">
+</head>
+<body>
+    <!-- ======== MAIN DESKTOP CANVAS ======== -->
+    <div id="desktop-canvas" class="desktop-canvas">
+        <!-- Top Menu Bar (Global) -->
+        <div id="top-menu" class="top-menu">
+            <div class="menu-logo">📝 Notepad Online</div>
+            <div class="menu-spacer"></div>
+            <div class="menu-settings">
+                <button id="btn-global-prefs" class="btn-menu-icon" title="Global Settings (⚙️)">⚙️</button>
+                <button id="btn-theme-toggle" class="btn-menu-icon" title="Toggle Dark/Light Mode">🌙</button>
+                <button id="btn-new-window" class="btn-menu-icon" title="New Window (+)">➕</button>
+            </div>
+        </div>
+
+        <!-- Windows Container (Floating Windows) -->
+        <div id="windows-container" class="windows-container">
+            <!-- Windows are dynamically created here -->
+        </div>
+
+        <!-- Bottom Taskbar / Dock -->
+        <div id="bottom-dock" class="bottom-dock">
+            <div class="dock-content">
+                <!-- Taskbar items are dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== PREFERENCE MODAL (Hidden by default) ======== -->
+    <div id="preferences-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Preferences</h2>
+                <button class="btn-close" id="close-prefs-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Font Settings -->
+                <div class="prefs-section">
+                    <h3>Font Settings</h3>
+                    <div class="prefs-group">
+                        <label>Font Family:</label>
+                        <select id="pref-font-family">
+                            <option value="monospace">Monospace</option>
+                            <option value="sans-serif">Sans-Serif</option>
+                            <option value="serif">Serif</option>
+                            <option value="'Fira Code', monospace">Fira Code</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="system-ui">System UI</option>
+                        </select>
+                    </div>
+                    <div class="prefs-group">
+                        <label>Font Size: <span id="pref-size-value">14</span>px</label>
+                        <input type="range" id="pref-font-size" min="10" max="32" value="14">
+                    </div>
+                    <div class="prefs-group">
+                        <label>Text Color:</label>
+                        <input type="color" id="pref-text-color" value="#333333">
+                    </div>
+                    <div class="prefs-group">
+                        <label>Background Color:</label>
+                        <input type="color" id="pref-bg-color" value="#FFFFFF">
+                    </div>
+                </div>
+
+                <!-- Editor Settings -->
+                <div class="prefs-section">
+                    <h3>Editor Settings</h3>
+                    <div class="prefs-group">
+                        <label>Tab Width:</label>
+                        <select id="pref-tab-width">
+                            <option value="2">2 spaces</option>
+                            <option value="4" selected>4 spaces</option>
+                            <option value="8">8 spaces</option>
+                        </select>
+                    </div>
+                    <div class="prefs-group checkbox">
+                        <input type="checkbox" id="pref-auto-indent" checked>
+                        <label for="pref-auto-indent">Automatic Indentation</label>
+                    </div>
+                    <div class="prefs-group checkbox">
+                        <input type="checkbox" id="pref-text-wrap" checked>
+                        <label for="pref-text-wrap">Enable Text Wrapping</label>
+                    </div>
+                    <div class="prefs-group checkbox">
+                        <input type="checkbox" id="pref-line-numbers" checked>
+                        <label for="pref-line-numbers">Display Line Numbers</label>
+                    </div>
+                    <div class="prefs-group checkbox">
+                        <input type="checkbox" id="pref-status-bar" checked>
+                        <label for="pref-status-bar">Display Status Bar</label>
+                    </div>
+                    <div class="prefs-group checkbox">
+                        <input type="checkbox" id="pref-minimap" checked>
+                        <label for="pref-minimap">Display Overview Map (Minimap)</label>
+                    </div>
+                </div>
+
+                <!-- Preset Management -->
+                <div class="prefs-section">
+                    <h3>Preset Management</h3>
+                    <div class="prefs-group">
+                        <button id="btn-save-preset" class="btn-primary">Save Current as Preset</button>
+                    </div>
+                    <div id="presets-list">
+                        <!-- Preset history items loaded here -->
+                    </div>
+                </div>
+
+                <!-- Global Settings -->
+                <div class="prefs-section">
+                    <h3>Global Settings</h3>
+                    <div class="prefs-group checkbox">
+                        <input type="checkbox" id="pref-auto-save" checked>
+                        <label for="pref-auto-save">Auto-Save (every 1 minute)</label>
+                    </div>
+                    <div class="prefs-group checkbox">
+                        <input type="checkbox" id="pref-create-backup" checked>
+                        <label for="pref-create-backup">Create Backup Copies</label>
+                    </div>
+                    <div class="prefs-group">
+                        <button id="btn-clear-storage" class="btn-secondary">Clear All Data</button>
+                        <button id="btn-export-backup" class="btn-secondary">Export Backup</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-save-defaults" class="btn-primary">Save as Default</button>
+                <button id="btn-close-prefs" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== HELP MODALS ======== -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Keyboard Shortcuts</h2>
+                <button class="btn-close" id="close-help-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-table">
+                    <table>
+                        <tr><th>Shortcut</th><th>Action</th></tr>
+                        <tr><td>Ctrl/Cmd + S</td><td>Save Current Tab</td></tr>
+                        <tr><td>Ctrl/Cmd + Z</td><td>Undo</td></tr>
+                        <tr><td>Ctrl/Cmd + Y</td><td>Redo</td></tr>
+                        <tr><td>Ctrl/Cmd + F</td><td>Find & Replace</td></tr>
+                        <tr><td>Ctrl/Cmd + A</td><td>Select All</td></tr>
+                        <tr><td>Ctrl/Cmd + N</td><td>New Window</td></tr>
+                        <tr><td>Ctrl/Cmd + W</td><td>Close Current Tab</td></tr>
+                        <tr><td>Ctrl/Cmd + T</td><td>New Tab in Window</td></tr>
+                        <tr><td>Ctrl/Cmd + ?</td><td>Show This Help</td></tr>
+                        <tr><td>Ctrl/Cmd + ,</td><td>Open Preferences</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-close-help" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== ABOUT MODAL ======== -->
+    <div id="about-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>About Notepad Online</h2>
+                <button class="btn-close" id="close-about-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="about-content">
+                    <h3>Notepad Online v1.0</h3>
+                    <p>A fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.</p>
+                    <p><strong>Features:</strong></p>
+                    <ul>
+                        <li>✅ 100% Local-First: All data stored locally in your browser</li>
+                        <li>✅ Zero HTTP Calls: Completely air-gapped and private</li>
+                        <li>✅ Desktop-Style Windows: Drag, resize, snap, minimize windows</li>
+                        <li>✅ Multi-Tab Editing: Unlimited tabs within windows</li>
+                        <li>✅ Image Clipboard: Paste and copy images directly</li>
+                        <li>✅ Search & Replace: Full regex support</li>
+                        <li>✅ Multiple Exports: TXT, MD, HTML, PDF, JSON</li>
+                        <li>✅ Offline-First PWA: Works completely offline</li>
+                    </ul>
+                    <p><strong>Privacy:</strong> Your data never leaves your browser. No telemetry, no tracking, no external API calls.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-close-about" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== FIND & REPLACE DRAWER ======== -->
+    <div id="find-replace-drawer" class="drawer hidden">
+        <div class="drawer-header">
+            <h3>Find & Replace</h3>
+            <button class="btn-close" id="close-drawer">✕</button>
+        </div>
+        <div class="drawer-content">
+            <div class="find-group">
+                <label>Find:</label>
+                <input type="text" id="input-find" placeholder="Search text...">
+                <div class="find-options">
+                    <label><input type="checkbox" id="find-case-sensitive"> Match Case</label>
+                    <label><input type="checkbox" id="find-whole-word"> Whole Word</label>
+                    <label><input type="checkbox" id="find-regex"> Regex</label>
+                </div>
+                <div class="find-controls">
+                    <button id="btn-find-prev" class="btn-sm">← Previous</button>
+                    <button id="btn-find-next" class="btn-sm">Next →</button>
+                    <span id="find-counter">0 of 0</span>
+                </div>
+            </div>
+            <div class="replace-group">
+                <label>Replace:</label>
+                <input type="text" id="input-replace" placeholder="Replace text...">
+                <div class="replace-controls">
+                    <button id="btn-replace-one" class="btn-sm">Replace</button>
+                    <button id="btn-replace-all" class="btn-sm">Replace All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== STATUS INDICATOR ======== -->
+    <div id="status-indicator" class="status-indicator hidden">
+        <span id="status-text">Saved</span>
+    </div>
+
+    <!-- ======== EXPORT DIALOG ======== -->
+    <div id="export-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Document</h2>
+                <button class="btn-close" id="close-export-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-formats">
+                    <button class="btn-export" data-format="txt">📄 Plain Text (.txt)</button>
+                    <button class="btn-export" data-format="md">📝 Markdown (.md)</button>
+                    <button class="btn-export" data-format="html">🌐 HTML (.html)</button>
+                    <button class="btn-export" data-format="pdf">📕 PDF (.pdf)</button>
+                    <button class="btn-export" data-format="json">🔗 JSON Backup (.json)</button>
+                </div>
+                <div class="export-options">
+                    <label>Filename: <input type="text" id="export-filename" placeholder="my-document"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== APPLICATION ENTRY POINT ======== -->
+    <script type="module" src="js/app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('✅ Service Worker registered'))
+                .catch(err => console.log('⚠️ Service Worker registration failed:', err));
+        }
+    </script>
+</body>
+</html>

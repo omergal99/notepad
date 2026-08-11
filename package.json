@@ -1,0 +1,45 @@
+{
+  "name": "notepad-online",
+  "version": "1.0.0",
+  "description": "Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.",
+  "keywords": [
+    "notepad",
+    "online",
+    "text-editor",
+    "local-first",
+    "privacy",
+    "offline",
+    "pwa",
+    "progressive-web-app",
+    "desktop",
+    "windowing"
+  ],
+  "author": "Notepad Online Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/notepad-online/notepad-online.git"
+  },
+  "bugs": {
+    "url": "https://github.com/notepad-online/notepad-online/issues"
+  },
+  "homepage": "https://notepad.example.com",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "start": "python3 -m http.server 8000",
+    "test": "echo \"Tests not yet implemented\"",
+    "build": "echo \"No build step required - pure static files\"",
+    "serve": "python3 -m http.server"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "type": "module",
+  "devDependencies": {},
+  "dependencies": {
+    "uuid": "^9.0.0"
+  },
+  "browser": {
+    "uuid": "https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/esm-browser/index.js"
+  }
+}

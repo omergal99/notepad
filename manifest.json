@@ -1,0 +1,74 @@
+{
+  "name": "Notepad Online - Private Desktop Text Editor",
+  "short_name": "Notepad Online",
+  "description": "Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.",
+  "start_url": "/notepad/",
+  "scope": "/notepad/",
+  "display": "standalone",
+  "background_color": "#F8F7F2",
+  "theme_color": "#0078D4",
+  "orientation": "any",
+  "categories": ["productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23F8F7F2' width='540' height='720'/><text x='50%' y='50%' font-size='72' fill='%23333' text-anchor='middle' dy='.3em' font-family='monospace' font-weight='bold'>N</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23F8F7F2' width='192' height='192'/><text x='50%' y='50%' font-size='120' fill='%23333' text-anchor='middle' dy='.3em' font-family='monospace' font-weight='bold'>N</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23F8F7F2' width='512' height='512'/><text x='50%' y='50%' font-size='320' fill='%23333' text-anchor='middle' dy='.3em' font-family='monospace' font-weight='bold'>N</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Window",
+      "short_name": "New Window",
+      "description": "Open a new window in Notepad Online",
+      "url": "/notepad/?action=new-window",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%230078D4' width='96' height='96'/><text x='50%' y='50%' font-size='64' fill='white' text-anchor='middle' dy='.3em' font-family='monospace' font-weight='bold'>+</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Preferences",
+      "short_name": "Preferences",
+      "description": "Open Preferences in Notepad Online",
+      "url": "/notepad/?action=open-preferences",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%23107C10' width='96' height='96'/><text x='50%' y='50%' font-size='64' fill='white' text-anchor='middle' dy='.3em'>⚙️</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/notepad/?action=share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "file",
+          "accept": ["text/plain", "text/markdown", "text/html", "application/json"]
+        }
+      ]
+    }
+  }
+}

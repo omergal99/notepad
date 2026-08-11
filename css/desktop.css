@@ -1,0 +1,663 @@
+/* ============================================
+   NOTEPAD ONLINE - DESKTOP CSS
+   Desktop canvas, top menu, dock, and window layout
+   ============================================ */
+
+/* ============================================
+   DESKTOP CANVAS
+   ============================================ */
+
+#desktop-canvas {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-cream);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ============================================
+   TOP MENU BAR
+   ============================================ */
+
+#top-menu {
+    height: 50px;
+    background-color: var(--bg-light);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    z-index: calc(var(--z-dock) - 1);
+    flex-shrink: 0;
+}
+
+.menu-logo {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    white-space: nowrap;
+}
+
+.menu-spacer {
+    flex: 1;
+}
+
+.menu-settings {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* ============================================
+   WINDOWS CONTAINER (Floating Windows)
+   ============================================ */
+
+#windows-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 80px;
+}
+
+/* ============================================
+   BOTTOM DOCK / TASKBAR
+   ============================================ */
+
+#bottom-dock {
+    height: 70px;
+    background-color: var(--bg-light);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-dock);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.dock-content {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    height: 100%;
+}
+
+.dock-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    height: 54px;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 0 var(--spacing-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.dock-item:hover {
+    background-color: var(--bg-cream);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.dock-item.active {
+    background-color: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+}
+
+.dock-item-close {
+    margin-left: var(--spacing-xs);
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.7;
+    transition: opacity var(--transition-fast);
+}
+
+.dock-item-close:hover {
+    opacity: 1;
+}
+
+/* ============================================
+   SNAPPING DROP ZONES (Visual Guides)
+   ============================================ */
+
+.snap-zone {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    background-color: rgba(0, 120, 212, 0.15);
+    border: 2px dashed rgba(0, 120, 212, 0.5);
+    border-radius: var(--border-radius-md);
+    transition: opacity var(--transition-fast);
+    z-index: calc(var(--z-window) + 1);
+}
+
+.snap-zone.active {
+    opacity: 1;
+}
+
+.snap-zone-left {
+    left: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    margin-bottom: 80px;
+}
+
+.snap-zone-right {
+    right: 0;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    margin-bottom: 80px;
+}
+
+.snap-zone-top-left {
+    left: 0;
+    top: 0;
+    width: 50%;
+    height: 50%;
+    margin-bottom: 80px;
+}
+
+.snap-zone-top-right {
+    right: 0;
+    top: 0;
+    width: 50%;
+    height: 50%;
+    margin-bottom: 80px;
+}
+
+.snap-zone-bottom-left {
+    left: 0;
+    bottom: 80px;
+    width: 50%;
+    height: 50%;
+}
+
+.snap-zone-bottom-right {
+    right: 0;
+    bottom: 80px;
+    width: 50%;
+    height: 50%;
+}
+
+/* ============================================
+   MODALS & OVERLAYS
+   ============================================ */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    animation: fadeIn var(--transition-base);
+}
+
+.modal-content {
+    position: relative;
+    background-color: var(--bg-light);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp var(--transition-base);
+    z-index: 1;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    gap: var(--spacing-md);
+    flex-shrink: 0;
+}
+
+/* ============================================
+   DRAWER (Find & Replace)
+   ============================================ */
+
+#find-replace-drawer {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+    z-index: calc(var(--z-dock) - 1);
+    width: 90%;
+    max-width: 600px;
+    animation: slideUp var(--transition-base);
+}
+
+#find-replace-drawer.hidden {
+    display: none;
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-content {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.find-group, .replace-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.find-group label, .replace-group label {
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+}
+
+#input-find, #input-replace {
+    width: 100%;
+}
+
+.find-options {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.find-options label, .replace-group label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    user-select: none;
+}
+
+.find-controls, .replace-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+#find-counter {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-left: var(--spacing-md);
+}
+
+/* ============================================
+   STATUS INDICATOR
+   ============================================ */
+
+#status-indicator {
+    position: fixed;
+    bottom: 90px;
+    right: var(--spacing-md);
+    background-color: var(--accent-green);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    z-index: calc(var(--z-dock) - 1);
+    animation: fadeIn var(--transition-fast);
+}
+
+#status-indicator.hidden {
+    display: none;
+}
+
+#status-indicator.error {
+    background-color: var(--accent-red);
+}
+
+#status-indicator.saving {
+    background-color: var(--accent-orange);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   CONTEXT MENU STYLES
+   ============================================ */
+
+.context-menu {
+    position: fixed;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+    min-width: 200px;
+    z-index: var(--z-context-menu);
+    display: flex;
+    flex-direction: column;
+    animation: slideDown var(--transition-fast);
+}
+
+.context-menu.hidden {
+    display: none;
+}
+
+.context-menu-item {
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    border-bottom: 1px solid var(--border-color);
+    font-size: var(--font-size-sm);
+    user-select: none;
+}
+
+.context-menu-item:last-child {
+    border-bottom: none;
+}
+
+.context-menu-item:hover {
+    background-color: var(--bg-cream);
+}
+
+.context-menu-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.context-menu-item.danger {
+    color: var(--accent-red);
+}
+
+.context-menu-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: var(--spacing-xs) 0;
+}
+
+/* ============================================
+   TOOLTIP STYLES
+   ============================================ */
+
+.tooltip {
+    position: absolute;
+    background-color: var(--text-primary);
+    color: white;
+    padding: 6px 12px;
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-xs);
+    z-index: var(--z-tooltip);
+    white-space: nowrap;
+    pointer-events: none;
+    animation: fadeIn var(--transition-fast);
+}
+
+/* ============================================
+   PREFERENCES MODAL SECTIONS
+   ============================================ */
+
+.prefs-section {
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.prefs-section:last-child {
+    border-bottom: none;
+}
+
+.prefs-section h3 {
+    margin-bottom: var(--spacing-md);
+}
+
+.prefs-group {
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.prefs-group label {
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+}
+
+.prefs-group select,
+.prefs-group input {
+    width: 100%;
+}
+
+.prefs-group.checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.prefs-group.checkbox input {
+    width: auto;
+    margin: 0;
+}
+
+.prefs-group.checkbox label {
+    margin: 0;
+}
+
+#presets-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.preset-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background-color: var(--bg-cream);
+    border-radius: var(--border-radius-sm);
+}
+
+.preset-item-name {
+    flex: 1;
+    font-size: var(--font-size-sm);
+}
+
+.preset-item-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.preset-item-actions button {
+    padding: 4px 8px;
+    font-size: var(--font-size-xs);
+}
+
+/* ============================================
+   EXPORT DIALOG
+   ============================================ */
+
+.export-formats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.btn-export {
+    padding: var(--spacing-md);
+    border: 2px solid var(--border-color);
+    background-color: transparent;
+    color: var(--text-primary);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-export:hover {
+    border-color: var(--accent-blue);
+    background-color: var(--bg-cream);
+    box-shadow: var(--shadow-sm);
+}
+
+.export-options {
+    margin-bottom: var(--spacing-lg);
+}
+
+.export-options label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+}
+
+#export-filename {
+    width: 100%;
+}
+
+/* ============================================
+   ABOUT/HELP CONTENT
+   ============================================ */
+
+.about-content, .shortcuts-table {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.about-content ul {
+    margin: var(--spacing-md) 0;
+    padding-left: var(--spacing-lg);
+}
+
+.about-content li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.shortcuts-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--spacing-md);
+}
+
+.shortcuts-table th {
+    background-color: var(--bg-cream);
+    padding: var(--spacing-sm);
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.shortcuts-table td {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.shortcuts-table tr:hover {
+    background-color: var(--bg-cream);
+}
