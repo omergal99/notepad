@@ -27,11 +27,12 @@
   "scripts": {
     "dev": "python3 -m http.server 8000",
     "start": "python3 -m http.server 8000",
-    "test": "node tests/runner.js",
-    "test:all": "node tests/runner.js tests/storage.test.js && node tests/runner.js tests/windowManager.test.js && node tests/runner.js tests/editor.test.js",
+    "test": "node tests/runner.js tests/storage.test.js && node tests/runner.js tests/windowManager.test.js && node tests/runner.js tests/editor.test.js && node tests/runner.js tests/preferences.test.js",
+    "test:all": "node tests/runner.js tests/storage.test.js && node tests/runner.js tests/windowManager.test.js && node tests/runner.js tests/editor.test.js && node tests/runner.js tests/preferences.test.js",
     "test:storage": "node tests/runner.js tests/storage.test.js",
     "test:windows": "node tests/runner.js tests/windowManager.test.js",
     "test:editor": "node tests/runner.js tests/editor.test.js",
+    "test:preferences": "node tests/runner.js tests/preferences.test.js",
     "test:coverage": "echo \"Coverage tracking enabled - see CI/CD pipeline\"",
     "build": "echo \"No build step required - pure static files\"",
     "serve": "python3 -m http.server"

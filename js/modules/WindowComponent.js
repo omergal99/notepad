@@ -1,10 +1,9 @@
 /**
  * WINDOW COMPONENT
- * Individual window instance DOM rendering and event handling
- * Phase 3 implementation
+ * Individual window instance DOM rendering and event handling.
  */
 
-import { createElement, query, addListener, addClass, removeClass, toggle } from '../utils/domUtils.js';
+import { createElement, query, addClass, removeClass } from '../utils/domUtils.js';
 
 export class WindowComponent {
     constructor(windowManager, windowId, windowState) {
@@ -15,49 +14,99 @@ export class WindowComponent {
         this.isDragging = false;
         this.isResizing = false;
         this.dragStart = { x: 0, y: 0 };
+        this.rafId = null;
     }
 
-    /**
-     * Render window DOM
-     */
+    _makeButton(label, className, title, onClick) {
+        const button = createElement('button', {
+            class: ['window-control-btn', className],
+            text: label,
+            attrs: { type: 'button', title }
+        });
+        button.addEventListener('click', onClick);
+        return button;
+    }
+
     render() {
         this.domElement = createElement('div', {
             class: ['window'],
             attrs: { 'data-window-id': this.windowId }
         });
 
-        // Title bar
-        const titleBar = createElement('div', {
-            class: ['window-title-bar']
-        });
+        this.domElement.style.position = 'absolute';
+        this.domElement.style.left = `${this.windowState.x}px`;
+        this.domElement.style.top = `${this.windowState.y}px`;
+        this.domElement.style.width = `${this.windowState.width}px`;
+        this.domElement.style.height = `${this.windowState.height}px`;
+        this.domElement.style.zIndex = String(this.windowState.zIndex || 1);
 
-        // Title text
+        const titleBar = createElement('div', { class: ['window-title-bar'] });
         const titleText = createElement('div', {
             class: ['window-title-text'],
-            text: this.windowState.title
-        });
-        titleBar.appendChild(titleText);
-
-        // Title bar buttons
-        const controlsContainer = createElement('div', {
-            class: ['window-title-right']
+            text: this.windowState.title || 'Untitled'
         });
 
-        // Minimize button
-        const btnMinimize = createElement('button', {
-            class: ['window-control-btn'],
-            text: '_',
-            attrs: { title: 'Minimize' }
+        const controls = createElement('div', { class: ['window-title-controls'] });
+        const saveBtn = this._makeButton('Save', 'window-save-btn', 'Save', async () => {
+            if (this.windowManager && typeof this.windowManager.saveWindowState === 'function') {
+                await this.windowManager.saveWindowState(this.windowId);
+            }
         });
-        btnMinimize.addEventListener('click', () => this.windowManager.minimizeWindow(this.windowId));
+        const deleteBtn = this._makeButton('Delete', 'window-delete-btn', 'Delete', async () => {
+            if (this.windowManager && typeof this.windowManager.closeWindow === 'function') {
+                await this.windowManager.closeWindow(this.windowId);
+            }
+        });
+        const minimizeBtn = this._makeButton('_', 'window-minimize-btn', 'Minimize', () => this.windowManager.minimizeWindow(this.windowId));
+        const maximizeBtn = this._makeButton('□', 'window-maximize-btn', 'Maximize / Restore', () => {
+            if (this.windowState.isMaximized) {
+                this.windowManager.restoreWindowSize(this.windowId);
+            } else {
+                this.windowManager.maximizeWindow(this.windowId);
+            }
+        });
+        const closeBtn = this._makeButton('✕', 'window-close-btn', 'Close', () => this.windowManager.closeWindow(this.windowId));
 
-        // Maximize button
-        const btnMaximize = createElement('button', {
-            class: ['window-control-btn'],
-            text: '□',
-            attrs: { title: 'Maximize' }
+        controls.append(saveBtn, deleteBtn, minimizeBtn, maximizeBtn, closeBtn);
+        titleBar.append(titleText, controls);
+
+        const content = createElement('div', { class: ['window-content'] });
+        const menuBar = createElement('div', { class: ['window-menu-bar'], text: 'File Edit View Tools Help' });
+        const editorWrapper = createElement('div', { class: ['editor-container'] });
+        const editor = createElement('textarea', {
+            class: ['window-editor'],
+            attrs: { spellcheck: 'false' }
         });
-        btnMaximize.addEventListener('click', () => {
+        editor.value = this.windowState.content || '';
+        editorWrapper.appendChild(editor);
+        content.append(menuBar, editorWrapper);
+
+        this.domElement.append(titleBar, content);
+        this.addResizeHandles();
+        this.attachEventListeners(titleBar);
+        this.updateDOMPosition();
+
+        return this.domElement;
+    }
+
+    addResizeHandles() {
+        const handles = ['top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right'];
+
+        handles.forEach(position => {
+            const handle = createElement('div', {
+                class: ['resize-handle', position]
+            });
+            handle.addEventListener('pointerdown', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.startResize(event, position);
+            });
+            this.domElement.appendChild(handle);
+        });
+    }
+
+    attachEventListeners(titleBar) {
+        titleBar.addEventListener('dblclick', () => {
             if (this.windowState.isMaximized) {
                 this.windowManager.restoreWindowSize(this.windowId);
             } else {
@@ -65,172 +114,127 @@ export class WindowComponent {
             }
         });
 
-        // Close button
-        const btnClose = createElement('button', {
-            class: ['window-control-btn', 'btn-close'],
-            text: '✕',
-            attrs: { title: 'Close' }
-        });
-        btnClose.addEventListener('click', () => this.windowManager.closeWindow(this.windowId));
-
-        controlsContainer.appendChild(btnMinimize);
-        controlsContainer.appendChild(btnMaximize);
-        controlsContainer.appendChild(btnClose);
-
-        titleBar.appendChild(controlsContainer);
-
-        // Content area
-        const content = createElement('div', {
-            class: ['window-content']
-        });
-
-        // Tab bar
-        const tabBar = createElement('div', {
-            class: ['tab-bar']
-        });
-        content.appendChild(tabBar);
-
-        // Editor container
-        const editorContainer = createElement('div', {
-            class: ['editor-container']
-        });
-        content.appendChild(editorContainer);
-
-        // Assemble window
-        this.domElement.appendChild(titleBar);
-        this.domElement.appendChild(content);
-
-        // Add resize handles
-        this.addResizeHandles();
-
-        // Position window
-        this.updateDOMPosition();
-
-        // Attach event listeners
-        this.attachEventListeners(titleBar);
-
-        return this.domElement;
-    }
-
-    /**
-     * Add resize handles to window
-     */
-    addResizeHandles() {
-        const handles = ['top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right'];
-        
-        handles.forEach(position => {
-            const handle = createElement('div', {
-                class: ['resize-handle', position]
-            });
-            
-            handle.addEventListener('mousedown', (e) => {
-                this.startResize(e, position);
-            });
-            
-            this.domElement.appendChild(handle);
-        });
-    }
-
-    /**
-     * Attach event listeners
-     */
-    attachEventListeners(titleBar) {
-        titleBar.addEventListener('mousedown', (e) => {
-            if (e.target === titleBar || e.target.classList.contains('window-title-text')) {
-                this.startDrag(e);
+        titleBar.addEventListener('pointerdown', (event) => {
+            if (event.target.closest('button')) {
+                return;
             }
+            this.startDrag(event);
         });
 
-        this.domElement.addEventListener('click', () => {
+        this.domElement.addEventListener('pointerdown', () => {
             this.windowManager.bringToTop(this.windowId);
-            addClass(this.domElement, 'active');
+            this.setActive(true);
         });
     }
 
-    /**
-     * Start drag operation
-     */
-    startDrag(e) {
+    startDrag(event) {
+        if (this.windowState.isMaximized) return;
+
         this.isDragging = true;
-        this.dragStart = { x: e.clientX, y: e.clientY };
-        this.dragStart.windowX = this.windowState.x;
-        this.dragStart.windowY = this.windowState.y;
-
-        const handleMouseMove = (moveEvent) => {
-            const deltaX = moveEvent.clientX - this.dragStart.x;
-            const deltaY = moveEvent.clientY - this.dragStart.y;
-
-            this.windowManager.updateWindowPosition(
-                this.windowId,
-                this.dragStart.windowX + deltaX,
-                this.dragStart.windowY + deltaY
-            );
-
-            this.updateDOMPosition();
+        this.dragStart = {
+            x: event.clientX,
+            y: event.clientY,
+            startX: this.windowState.x,
+            startY: this.windowState.y
         };
 
-        const handleMouseUp = () => {
+        const applyMove = (moveEvent) => {
+            if (!this.isDragging) return;
+            if (this.rafId) return;
+
+            this.rafId = requestAnimationFrame(() => {
+                const deltaX = moveEvent.clientX - this.dragStart.x;
+                const deltaY = moveEvent.clientY - this.dragStart.y;
+                const nextX = this.dragStart.startX + deltaX;
+                const nextY = this.dragStart.startY + deltaY;
+                this.windowManager.updateWindowPosition(this.windowId, nextX, nextY);
+                this.updateDOMPosition();
+                this.rafId = null;
+            });
+        };
+
+        const stopDrag = () => {
             this.isDragging = false;
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+            if (this.rafId) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+            document.removeEventListener('pointermove', applyMove);
+            document.removeEventListener('pointerup', stopDrag);
+            document.body.style.cursor = '';
+            const textarea = query('.window-editor', this.domElement);
+            if (textarea) textarea.style.pointerEvents = '';
         };
 
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('pointermove', applyMove);
+        document.addEventListener('pointerup', stopDrag);
+        document.body.style.cursor = 'grabbing';
+        const textarea = query('.window-editor', this.domElement);
+        if (textarea) textarea.style.pointerEvents = 'none';
     }
 
-    /**
-     * Start resize operation
-     */
-    startResize(e, position) {
+    startResize(event, position) {
         this.isResizing = true;
-        this.dragStart = { x: e.clientX, y: e.clientY };
-        this.dragStart.width = this.windowState.width;
-        this.dragStart.height = this.windowState.height;
-
-        const handleMouseMove = (moveEvent) => {
-            const deltaX = moveEvent.clientX - this.dragStart.x;
-            const deltaY = moveEvent.clientY - this.dragStart.y;
-
-            let newWidth = this.dragStart.width;
-            let newHeight = this.dragStart.height;
-
-            if (position.includes('right')) newWidth += deltaX;
-            if (position.includes('bottom')) newHeight += deltaY;
-            if (position.includes('left')) newWidth -= deltaX;
-            if (position.includes('top')) newHeight -= deltaY;
-
-            this.windowManager.updateWindowSize(this.windowId, newWidth, newHeight);
-            this.updateDOMPosition();
+        this.dragStart = {
+            x: event.clientX,
+            y: event.clientY,
+            width: this.windowState.width,
+            height: this.windowState.height
         };
 
-        const handleMouseUp = () => {
+        const applyMove = (moveEvent) => {
+            if (!this.isResizing) return;
+            if (this.rafId) return;
+
+            this.rafId = requestAnimationFrame(() => {
+                const deltaX = moveEvent.clientX - this.dragStart.x;
+                const deltaY = moveEvent.clientY - this.dragStart.y;
+                let nextWidth = this.dragStart.width;
+                let nextHeight = this.dragStart.height;
+
+                if (position.includes('right')) nextWidth += deltaX;
+                if (position.includes('bottom')) nextHeight += deltaY;
+                if (position.includes('left')) nextWidth -= deltaX;
+                if (position.includes('top')) nextHeight -= deltaY;
+
+                this.windowManager.updateWindowSize(this.windowId, nextWidth, nextHeight);
+                this.updateDOMPosition();
+                this.rafId = null;
+            });
+        };
+
+        const stopResize = () => {
             this.isResizing = false;
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+            if (this.rafId) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+            document.removeEventListener('pointermove', applyMove);
+            document.removeEventListener('pointerup', stopResize);
+            const textarea = query('.window-editor', this.domElement);
+            if (textarea) textarea.style.pointerEvents = '';
+            document.body.style.cursor = '';
         };
 
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('pointermove', applyMove);
+        document.addEventListener('pointerup', stopResize);
+        document.body.style.cursor = 'nwse-resize';
+        const textarea = query('.window-editor', this.domElement);
+        if (textarea) textarea.style.pointerEvents = 'none';
     }
 
-    /**
-     * Update DOM position and size
-     */
     updateDOMPosition() {
         if (!this.domElement) return;
-
-        this.domElement.style.left = `${this.windowState.x}px`;
-        this.domElement.style.top = `${this.windowState.y}px`;
-        this.domElement.style.width = `${this.windowState.width}px`;
-        this.domElement.style.height = `${this.windowState.height}px`;
-        this.domElement.style.zIndex = 100;
+        const state = this.windowState || {};
+        this.domElement.style.left = `${state.x ?? 0}px`;
+        this.domElement.style.top = `${state.y ?? 0}px`;
+        this.domElement.style.width = `${state.width ?? 800}px`;
+        this.domElement.style.height = `${state.height ?? 600}px`;
+        this.domElement.style.zIndex = String(state.zIndex || 1);
     }
 
-    /**
-     * Set active state
-     */
     setActive(active) {
+        if (!this.domElement) return;
         if (active) {
             addClass(this.domElement, 'active');
         } else {
@@ -238,9 +242,6 @@ export class WindowComponent {
         }
     }
 
-    /**
-     * Update window title
-     */
     setTitle(title) {
         this.windowState.title = title;
         const titleElement = query('.window-title-text', this.domElement);
@@ -249,9 +250,6 @@ export class WindowComponent {
         }
     }
 
-    /**
-     * Destroy window component
-     */
     destroy() {
         if (this.domElement && this.domElement.parentElement) {
             this.domElement.parentElement.removeChild(this.domElement);
