@@ -66,6 +66,25 @@ export function query(selector, parent = document) {
 }
 
 /**
+ * Find the editor element for a given tab id without matching tab DOM nodes.
+ * @param {HTMLElement} parent
+ * @param {string} tabId
+ * @returns {HTMLElement|null}
+ */
+export function findMatchingEditor(parent, tabId) {
+    if (!parent || !tabId) return null;
+
+    const editors = parent.querySelectorAll('.editor');
+    for (const editor of editors) {
+        if (editor.getAttribute('data-tab-id') === tabId) {
+            return editor;
+        }
+    }
+
+    return null;
+}
+
+/**
  * Query all elements
  * @param {string} selector
  * @param {HTMLElement} parent

@@ -15,7 +15,7 @@ import { ExportEngine } from './modules/ExportEngine.js';
 import { SearchReplaceEngine } from './modules/SearchReplaceEngine.js';
 import { KeyboardShortcuts } from './modules/KeyboardShortcuts.js';
 import { ThemeEngine } from './modules/ThemeEngine.js';
-import { query, queryAll, addListener, createElement, addClass, removeClass, toggle } from './utils/domUtils.js';
+import { query, queryAll, addListener, createElement, addClass, removeClass, toggle, findMatchingEditor } from './utils/domUtils.js';
 
 class NotepadOnlineApp {
     constructor() {
@@ -407,8 +407,9 @@ class NotepadOnlineApp {
                 editor.style.display = 'none';
             });
 
-            // Show only active tab's editor
-            const activeEditor = query(`[data-tab-id="${activeTabId}"]`, editorHost);
+            // Show only active tab's editor. The tab bar and editor use the same tab id,
+            // so we must target the .editor element specifically.
+            const activeEditor = findMatchingEditor(editorHost, activeTabId);
             if (activeEditor) {
                 activeEditor.style.display = 'flex';
             }

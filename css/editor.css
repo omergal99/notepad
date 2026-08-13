@@ -13,6 +13,7 @@
     flex-direction: column;
     overflow: hidden;
     background-color: var(--bg-light);
+    min-height: 0;
 }
 
 .editor-inner {
@@ -21,6 +22,7 @@
     overflow: hidden;
     position: relative;
     background-color: var(--bg-light);
+    min-height: 0;
 }
 
 /* ============================================
@@ -70,6 +72,7 @@ body.dark-mode .line-numbers {
     position: relative;
     overflow: hidden;
     display: flex;
+    min-height: 0;
 }
 
 .editor-textarea {
@@ -90,6 +93,7 @@ body.dark-mode .line-numbers {
     white-space: pre-wrap;
     tab-size: 4;
     -moz-tab-size: 4;
+    min-height: 0;
 }
 
 .editor-textarea::selection {

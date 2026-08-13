@@ -8,7 +8,21 @@
  * Run: npm run test:editor
  */
 
+import { findMatchingEditor } from '../js/utils/domUtils.js';
+
 describe('EditorComponent & TabManager', () => {
+  test('should select the active editor element instead of the tab element with the same tab id', () => {
+    const tabEl = { getAttribute: (name) => name === 'data-tab-id' ? 'tab-42' : null, style: {} };
+    const editorEl = { getAttribute: (name) => name === 'data-tab-id' ? 'tab-42' : null, style: {} };
+    const editorHost = {
+      querySelectorAll: (selector) => selector === '.editor' ? [tabEl, editorEl] : []
+    };
+
+    const result = findMatchingEditor(editorHost, 'tab-42');
+
+    assert.strictEqual(result, editorEl, 'Expected the matching editor element to be returned');
+  });
+
   // Test 1: Tab creation
   test('should create tab with unique ID', async () => {
     assert.ok(true, 'Create tab test placeholder');

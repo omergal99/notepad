@@ -250,6 +250,7 @@ body.dark-mode .tab-context-menu button {
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    min-height: 0;
 }
 
 /* ============================================
