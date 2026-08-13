@@ -62,7 +62,7 @@
     }
     </script>
 
-    <title>Notepad Online - Private Desktop Text Editor</title>
+    <title>Notepad</title>
     
     <!-- CSP Header -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:;">
@@ -85,12 +85,67 @@
     <div id="desktop-canvas" class="desktop-canvas">
         <!-- Top Menu Bar (Global) -->
         <div id="top-menu" class="top-menu">
-            <div class="menu-logo">📝 Notepad Online</div>
+            <div class="menu-logo">Notepad</div>
             <div class="menu-spacer"></div>
             <div class="menu-settings">
-                <button id="btn-global-prefs" class="btn-menu-icon" title="Global Settings (⚙️)">⚙️</button>
-                <button id="btn-theme-toggle" class="btn-menu-icon" title="Toggle Dark/Light Mode">🌙</button>
-                <button id="btn-new-window" class="btn-menu-icon" title="New Window (+)">➕</button>
+                <button id="btn-global-prefs" class="btn-menu-icon" title="Global Settings">Settings</button>
+                <button id="btn-theme-toggle" class="btn-menu-icon" title="Toggle Dark/Light Mode">Theme</button>
+                <button id="btn-new-window" class="btn-menu-icon" title="New Window">New Window</button>
+            </div>
+        </div>
+
+        <!-- Application Menu Bar -->
+        <div id="app-menu-bar" class="app-menu-bar">
+            <div class="menu-item">
+                <button class="menu-button">File</button>
+                <div class="menu-dropdown">
+                    <div class="menu-option" data-action="newWindow">New Window</div>
+                    <div class="menu-option" data-action="newTab">New Tab</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="save">Save Current</div>
+                    <div class="menu-option" data-action="saveAll">Save All</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="exit">Exit</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-button">Edit</button>
+                <div class="menu-dropdown">
+                    <div class="menu-option" data-action="undo">Undo</div>
+                    <div class="menu-option" data-action="redo">Redo</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="find">Find</div>
+                    <div class="menu-option" data-action="replace">Replace</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-button">View</button>
+                <div class="menu-dropdown">
+                    <div class="menu-option" data-action="toggleLineNumbers">Toggle Line Numbers</div>
+                    <div class="menu-option" data-action="toggleMinimap">Toggle Minimap</div>
+                    <div class="menu-option" data-action="toggleStatusBar">Toggle Status Bar</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="zoomIn">Zoom In</div>
+                    <div class="menu-option" data-action="zoomOut">Zoom Out</div>
+                    <div class="menu-option" data-action="resetZoom">Reset Zoom</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-button">Tools</button>
+                <div class="menu-dropdown">
+                    <div class="menu-option" data-action="export">Export</div>
+                    <div class="menu-option" data-action="print">Print</div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-option" data-action="preferences">Preferences</div>
+                    <div class="menu-option" data-action="keyboardShortcuts">Keyboard Shortcuts</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <button class="menu-button">Help</button>
+                <div class="menu-dropdown">
+                    <div class="menu-option" data-action="about">About Notepad Online</div>
+                    <div class="menu-option" data-action="documentation">Documentation</div>
+                </div>
             </div>
         </div>
 
@@ -113,7 +168,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Preferences</h2>
-                <button class="btn-close" id="close-prefs-modal">✕</button>
+                <button class="btn-close" id="close-prefs-modal">Close</button>
             </div>
             <div class="modal-body">
                 <!-- Font Settings -->
@@ -218,7 +273,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Keyboard Shortcuts</h2>
-                <button class="btn-close" id="close-help-modal">✕</button>
+                <button class="btn-close" id="close-help-modal">Close</button>
             </div>
             <div class="modal-body">
                 <div class="shortcuts-table">
@@ -249,7 +304,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>About Notepad Online</h2>
-                <button class="btn-close" id="close-about-modal">✕</button>
+                <button class="btn-close" id="close-about-modal">Close</button>
             </div>
             <div class="modal-body">
                 <div class="about-content">
@@ -279,7 +334,7 @@
     <div id="find-replace-drawer" class="drawer hidden">
         <div class="drawer-header">
             <h3>Find & Replace</h3>
-            <button class="btn-close" id="close-drawer">✕</button>
+            <button class="btn-close" id="close-drawer">Close</button>
         </div>
         <div class="drawer-content">
             <div class="find-group">
@@ -318,12 +373,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Export Document</h2>
-                <button class="btn-close" id="close-export-modal">✕</button>
+                <button class="btn-close" id="close-export-modal">Close</button>
             </div>
             <div class="modal-body">
                 <div class="export-formats">
                     <button class="btn-export" data-format="txt">📄 Plain Text (.txt)</button>
-                    <button class="btn-export" data-format="md">📝 Markdown (.md)</button>
+                    <button class="btn-export" data-format="md">Markdown (.md)</button>
                     <button class="btn-export" data-format="html">🌐 HTML (.html)</button>
                     <button class="btn-export" data-format="pdf">📕 PDF (.pdf)</button>
                     <button class="btn-export" data-format="json">🔗 JSON Backup (.json)</button>
@@ -331,6 +386,23 @@
                 <div class="export-options">
                     <label>Filename: <input type="text" id="export-filename" placeholder="my-document"></label>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======== NOTIFICATION MODAL ======== -->
+    <div id="notification-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content notification-content">
+            <div class="notification-header">
+                <h3 id="notification-title">Message</h3>
+                <button class="btn-close" id="close-notification-modal">Close</button>
+            </div>
+            <div class="notification-body">
+                <p id="notification-message"></p>
+            </div>
+            <div class="notification-footer">
+                <button id="notification-ok-btn" class="btn btn-primary">OK</button>
             </div>
         </div>
     </div>

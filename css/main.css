@@ -98,6 +98,31 @@ body.dark-mode .window-title-bar {
     border-bottom-color: #3E3E42;
 }
 
+/* Per-window colors in dark mode */
+body.dark-mode .window[data-color="#4A5568"] .window-title-bar {
+    background: linear-gradient(to bottom, #5a6680, #4A5568) !important;
+}
+
+body.dark-mode .window[data-color="#3A6B6B"] .window-title-bar {
+    background: linear-gradient(to bottom, #4a7b7b, #3A6B6B) !important;
+}
+
+body.dark-mode .window[data-color="#5A4A68"] .window-title-bar {
+    background: linear-gradient(to bottom, #6a5a78, #5A4A68) !important;
+}
+
+body.dark-mode .window[data-color="#68563A"] .window-title-bar {
+    background: linear-gradient(to bottom, #78664a, #68563A) !important;
+}
+
+body.dark-mode .window[data-color="#3A4A68"] .window-title-bar {
+    background: linear-gradient(to bottom, #4a5a78, #3A4A68) !important;
+}
+
+body.dark-mode .window[data-color="#683A4A"] .window-title-bar {
+    background: linear-gradient(to bottom, #784a5a, #683A4A) !important;
+}
+
 body.dark-mode .window-title-text {
     color: #CCCCCC;
 }
@@ -353,20 +378,128 @@ button:disabled {
 }
 
 .btn-menu-icon {
-    width: 40px;
+    width: auto;
     height: 40px;
-    padding: 0;
+    padding: 0 12px;
     background-color: transparent;
-    color: var(--text-primary);
-    font-size: var(--font-size-lg);
+    color: #333333;
+    font-size: 13px;
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--border-radius-md);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 150ms ease;
+    white-space: nowrap;
+    gap: 4px;
 }
 
 .btn-menu-icon:hover {
-    background-color: var(--border-color);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================
+   APPLICATION MENU BAR
+   ============================================ */
+
+.app-menu-bar {
+    display: flex;
+    background-color: #F5F5F5;
+    border-bottom: 1px solid #D0D0D0;
+    padding: 0;
+    height: 28px;
+    gap: 0;
+}
+
+.menu-item {
+    position: relative;
+    height: 100%;
+}
+
+.menu-button {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333333;
+    height: 100%;
+    transition: background-color 150ms ease;
+}
+
+.menu-button:hover {
+    background-color: #E8E8E8;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #FFFFFF;
+    border: 1px solid #D0D0D0;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    z-index: 1000;
+    padding: 4px 0;
+}
+
+.menu-item:hover .menu-dropdown {
+    display: block;
+}
+
+.menu-option {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333333;
+    transition: background-color 150ms ease;
+    user-select: none;
+}
+
+.menu-option:hover {
+    background-color: #E8E8E8;
+}
+
+.menu-separator {
+    height: 1px;
+    background-color: #D0D0D0;
+    margin: 4px 0;
+}
+
+body.dark-mode .app-menu-bar {
+    background-color: #3C3C41;
+    border-bottom-color: #464647;
+}
+
+body.dark-mode .menu-button {
+    color: #CCCCCC;
+}
+
+body.dark-mode .menu-button:hover {
+    background-color: #464647;
+}
+
+body.dark-mode .menu-dropdown {
+    background-color: #3C3C41;
+    border-color: #464647;
+}
+
+body.dark-mode .menu-option {
+    color: #CCCCCC;
+}
+
+body.dark-mode .menu-option:hover {
+    background-color: #464647;
+}
+
+body.dark-mode .menu-separator {
+    background-color: #464647;
 }
 
 /* ============================================

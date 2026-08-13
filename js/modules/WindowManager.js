@@ -144,6 +144,7 @@ export class WindowManager extends EventEmitter {
         this._refreshZIndexes();
         await this._deletePersistedWindow(windowId);
         this.emit('windowClosed', { windowId });
+        this.emit('windowClosed', { windowId });
     }
 
     bringToTop(windowId) {
@@ -194,7 +195,7 @@ export class WindowManager extends EventEmitter {
         window.x = 0;
         window.y = 0;
         window.width = viewport.width;
-        window.height = viewport.height - 80;
+        window.height = viewport.height - 60;
 
         await this._persistWindow(window);
         this.emit('windowMaximized', { windowId });

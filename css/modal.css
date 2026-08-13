@@ -577,3 +577,55 @@
     margin-bottom: var(--spacing-md);
     border-radius: var(--border-radius-sm);
 }
+
+/* ============================================
+   NOTIFICATION MODAL
+   ============================================ */
+
+.notification-content {
+    max-width: 400px;
+    padding: var(--spacing-lg);
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.notification-body {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--spacing-lg);
+}
+
+.notification-body p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--text-dark);
+}
+
+.notification-footer {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+body.dark-mode .notification-content {
+    background-color: #3C3C41;
+    color: #CCCCCC;
+}
+
+body.dark-mode .notification-header h3 {
+    color: #CCCCCC;
+}
+
+body.dark-mode .notification-body p {
+    color: #CCCCCC;
+}

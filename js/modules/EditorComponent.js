@@ -99,6 +99,7 @@ export class EditorComponent extends EventEmitter {
             this.statusBarElement.classList.add('visible');
         }
 
+        this.updateLineNumbers();
         this.updateStatusBar();
 
         this.domElement.appendChild(innerContainer);
@@ -195,6 +196,7 @@ export class EditorComponent extends EventEmitter {
     updateLineNumbers() {
         if (!this.lineNumbersElement || !this.lineNumbersElement.classList.contains('visible')) return;
 
+        // Physical document lines only; word wrapping must not add numbers.
         const lines = this.textareaElement.value.split('\n').length;
         const currentLines = this.lineNumbersElement.children.length;
 
@@ -279,6 +281,29 @@ export class EditorComponent extends EventEmitter {
             this.textareaElement.value = content;
             this.updateLineNumbers();
             this.updateStatusBar();
+        }
+    }
+
+    setLineNumbersVisible(isVisible) {
+        this.lineNumbersElement?.classList.toggle('visible', isVisible);
+        if (isVisible) this.updateLineNumbers();
+    }
+
+    setMinimapVisible(isVisible) {
+        this.minimapElement?.classList.toggle('visible', isVisible);
+    }
+
+    setStatusBarVisible(isVisible) {
+        this.statusBarElement?.classList.toggle('visible', isVisible);
+        if (isVisible) this.updateStatusBar();
+    }
+
+    setFontSize(fontSize) {
+        if (this.textareaElement) {
+            this.textareaElement.style.fontSize = `${fontSize}px`;
+        }
+        if (this.lineNumbersElement) {
+            this.lineNumbersElement.style.fontSize = `${fontSize}px`;
         }
     }
 
