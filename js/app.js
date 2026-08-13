@@ -201,6 +201,7 @@ class NotepadOnlineApp {
         });
 
         component.on('save', () => this.saveCurrentWindow());
+        component.on('menuAction', ({ action }) => this.handleMenuAction(action));
         component.on('saveTab', ({ tabId }) => this.saveTab(tabId));
         component.on('importFile', () => this.importFile(windowId));
         component.on('openRecentFile', ({ fileId }) => this.openRecentFile(windowId, fileId));

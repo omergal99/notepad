@@ -108,6 +108,7 @@ export class WindowComponent extends EventEmitter {
             this.emit('addTab');
         });
         titleLeft.appendChild(addTabBtn);
+        titleLeft.appendChild(this.createWindowMenu());
         
         // CENTER: Title text with save status
         const titleCenter = createElement('div', { class: ['window-title-center'] });
@@ -159,20 +160,54 @@ export class WindowComponent extends EventEmitter {
         const tabBar = createElement('div', { class: ['tab-bar'] });
         tabBar.setAttribute('data-window-id', this.windowId);
         
-        // Editor container - will be filled by app.js with EditorComponent instances
-        const editorContainer = createElement('div', { class: ['editor-container'] });
-        editorContainer.style.flex = '1';
-        editorContainer.style.overflow = 'hidden';
-        editorContainer.style.position = 'relative';
-        editorContainer.setAttribute('data-window-id', this.windowId);
-        
-        content.append(tabBar, editorContainer);
+        content.appendChild(tabBar);
         this.domElement.append(titleBar, content);
         this.addResizeHandles();
         this.attachEventListeners(titleBar, titleText);
         this.updateDOMPosition();
 
         return this.domElement;
+    }
+
+    createWindowMenu() {
+        const menuBar = createElement('div', { class: ['window-menu-bar'] });
+        const menus = [
+            ['File', [['New Window', 'newWindow'], ['New Tab', 'newTab'], ['Save', 'save'], ['Save All', 'saveAll'], ['Exit', 'exit']]],
+            ['Edit', [['Undo', 'undo'], ['Redo', 'redo'], ['Find', 'find'], ['Replace', 'replace']]],
+            ['View', [['Line Numbers', 'toggleLineNumbers'], ['Minimap', 'toggleMinimap'], ['Status Bar', 'toggleStatusBar'], ['Zoom In', 'zoomIn'], ['Zoom Out', 'zoomOut'], ['Reset Zoom', 'resetZoom']]],
+            ['Tools', [['Export', 'export'], ['Print', 'print'], ['Preferences', 'preferences']]],
+            ['Help', [['About', 'about'], ['Documentation', 'documentation']]]
+        ];
+
+        menus.forEach(([label, actions]) => {
+            const item = createElement('div', { class: ['window-menu-item'] });
+            const button = createElement('button', { text: label, attrs: { type: 'button' } });
+            const dropdown = createElement('div', { class: ['window-menu-dropdown'] });
+            button.addEventListener('click', (event) => {
+                event.stopPropagation();
+                menuBar.querySelectorAll('.window-menu-dropdown.visible').forEach(menu => {
+                    if (menu !== dropdown) removeClass(menu, 'visible');
+                });
+                dropdown.classList.toggle('visible');
+            });
+            actions.forEach(([actionLabel, action]) => {
+                const actionButton = createElement('button', { text: actionLabel, attrs: { type: 'button' } });
+                actionButton.addEventListener('click', () => {
+                    removeClass(dropdown, 'visible');
+                    this.emit('menuAction', { action });
+                });
+                dropdown.appendChild(actionButton);
+            });
+            item.append(button, dropdown);
+            menuBar.appendChild(item);
+        });
+
+        document.addEventListener('pointerdown', (event) => {
+            if (!menuBar.contains(event.target)) {
+                menuBar.querySelectorAll('.window-menu-dropdown.visible').forEach(menu => removeClass(menu, 'visible'));
+            }
+        });
+        return menuBar;
     }
 
     /**
