@@ -2,6 +2,7 @@
   <symbol id="open" viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v10H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 7V5h7l2 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
   <symbol id="new-tab" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="save" viewBox="0 0 24 24"><path d="M5 3h12l3 3v15H5zM8 3v6h8V3m-8 17v-6h8v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4.2 4.2L19 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="minimize" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="maximize" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="restore" viewBox="0 0 24 24"><rect x="8" y="5" width="11" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 19H5V8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>

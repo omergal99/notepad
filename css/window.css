@@ -197,6 +197,11 @@
     color: white;
 }
 
+.window-control-btn.is-saved {
+    color: #107C10;
+    background-color: rgba(16, 124, 16, 0.12);
+}
+
 .tab-context-menu {
     position: absolute;
     top: calc(100% + 2px);
@@ -407,18 +412,6 @@ body.dark-mode .tab-context-menu button {
     background-color: var(--bg-cream);
 }
 
-/* ============================================
-   EDITOR CONTAINER
-   ============================================ */
-
-.editor-container {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-    position: relative;
-    background-color: var(--bg-light);
-}
-
 .editor-wrapper {
     flex: 1;
     display: flex;
@@ -515,42 +508,85 @@ body.dark-mode .tab-context-menu button {
    WINDOW MENU BAR (Inside Window)
    ============================================ */
 
-/* Menu bar removed - no longer used */
+.window-menu-bar {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+    min-width: 0;
+}
+
+.window-menu-item {
+    position: relative;
+}
+
+.window-menu-item > button {
+    padding: 4px 6px;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.window-menu-item > button:hover,
+.window-menu-item > button:focus-visible {
+    background: rgba(0, 0, 0, 0.09);
+    outline: none;
+}
+
+.window.active .window-menu-item > button:hover,
+.window.active .window-menu-item > button:focus-visible {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.window-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    z-index: 30;
+    display: none;
+    min-width: 150px;
+    padding: 4px;
+    border: 1px solid #CFCFCF;
+    border-radius: 4px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
 .window-menu-dropdown.visible {
     display: flex;
+    flex-direction: column;
 }
 
-.window-menu-dropdown-item {
-    padding: var(--spacing-sm) var(--spacing-md);
+.window-menu-dropdown button {
+    padding: 7px 9px;
     cursor: pointer;
-    transition: background-color var(--transition-fast);
-    border-bottom: 1px solid var(--border-color);
-    font-size: var(--font-size-sm);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    user-select: none;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: #333333;
+    text-align: left;
+    font: inherit;
+    font-size: 12px;
 }
 
-.window-menu-dropdown-item:last-child {
-    border-bottom: none;
+.window-menu-dropdown button:hover {
+    background: #EAF3FB;
 }
 
-.window-menu-dropdown-item:hover {
-    background-color: var(--bg-cream);
+body.dark-mode .window-menu-dropdown {
+    border-color: #55555A;
+    background: #3C3C41;
 }
 
-.window-menu-dropdown-item.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+body.dark-mode .window-menu-dropdown button {
+    color: #F0F0F0;
 }
 
-.menu-shortcut {
-    margin-left: var(--spacing-md);
-    font-size: var(--font-size-xs);
-    color: var(--text-light);
+body.dark-mode .window-menu-dropdown button:hover {
+    background: #4A4A50;
 }
 
 /* ============================================

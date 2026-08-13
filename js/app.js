@@ -356,12 +356,11 @@ class NotepadOnlineApp {
             const windowComponent = this.windowComponents.get(windowId);
             if (!windowComponent || !tab) return;
 
-            // Get editor container
-            const editorContainer = query('.editor-container', windowComponent.domElement);
-            if (editorContainer) {
+            const editorHost = query('.window-content', windowComponent.domElement);
+            if (editorHost) {
                 // Create editor component - it will render its own div with data-tab-id
                 const editorComponent = new EditorComponent(this.tabManager, tabId);
-                editorComponent.render(editorContainer);
+                editorComponent.render(editorHost);
                 this.editorComponents.set(tabId, editorComponent);
             }
 
@@ -378,14 +377,14 @@ class NotepadOnlineApp {
         if (!windowComponent) return;
 
         // Hide all editors in this window
-        const editorContainer = query('.editor-container', windowComponent.domElement);
-        if (editorContainer) {
-            queryAll('.editor', editorContainer).forEach(editor => {
+        const editorHost = query('.window-content', windowComponent.domElement);
+        if (editorHost) {
+            queryAll('.editor', editorHost).forEach(editor => {
                 editor.style.display = 'none';
             });
 
             // Show only active tab's editor
-            const activeEditor = query(`[data-tab-id="${activeTabId}"]`, editorContainer);
+            const activeEditor = query(`[data-tab-id="${activeTabId}"]`, editorHost);
             if (activeEditor) {
                 activeEditor.style.display = 'flex';
             }
@@ -541,14 +540,6 @@ class NotepadOnlineApp {
                     component.emit('closeTab', { tabId: windowState.activeTabId });
                 }
             }
-        });
-
-        // Application menu handlers
-        queryAll('.menu-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                const action = e.target.getAttribute('data-action');
-                this.handleMenuAction(action);
-            });
         });
 
         // Attach preferences modal handlers
@@ -894,6 +885,7 @@ class NotepadOnlineApp {
             if (component && windowState.tabs) {
                 const tabsData = windowState.tabs.map(id => this.tabManager.getTab(id)).filter(t => t);
                 component.renderTabs(tabsData, windowState.activeTabId);
+                component.indicateSaved();
             }
             
             this.showNotification('✓ Saved', 'success', 1500);

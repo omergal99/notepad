@@ -497,14 +497,3 @@ body.dark-mode .window-editor {
     caret-color: #0078D4;
 }
 
-.editor-container {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-    position: relative;
-    background-color: #FFFFFF;
-}
-
-body.dark-mode .editor-container {
-    background-color: #3C3C41;
-}

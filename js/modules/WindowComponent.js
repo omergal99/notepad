@@ -121,7 +121,7 @@ export class WindowComponent extends EventEmitter {
         // RIGHT: Window commands
         const titleRight = createElement('div', { class: ['window-title-right'] });
         
-        const saveBtn = this._makeButton('save', 'window-save-btn', 'Save', (e) => {
+        this.saveBtn = this._makeButton('save', 'window-save-btn', 'Save', (e) => {
             e.stopPropagation();
             this.emit('save');
         });
@@ -151,7 +151,7 @@ export class WindowComponent extends EventEmitter {
             this.emit('requestClose');
         });
         
-        titleRight.append(saveBtn, minimizeBtn, this.maximizeBtn, closeBtn);
+        titleRight.append(this.saveBtn, minimizeBtn, this.maximizeBtn, closeBtn);
         titleBar.append(titleLeft, titleCenter, titleRight);
 
         const content = createElement('div', { class: ['window-content'] });
@@ -221,6 +221,21 @@ export class WindowComponent extends EventEmitter {
                 this.saveIndicator.classList.remove('saved');
             }
         }
+    }
+
+    indicateSaved() {
+        if (!this.saveBtn) return;
+        this.saveBtn.classList.add('is-saved');
+        this.saveBtn.title = 'Saved';
+        this.saveBtn.setAttribute('aria-label', 'Saved');
+        this.saveBtn.replaceChildren(this._createIcon('check'));
+        clearTimeout(this.saveFeedbackTimer);
+        this.saveFeedbackTimer = setTimeout(() => {
+            this.saveBtn.classList.remove('is-saved');
+            this.saveBtn.title = 'Save';
+            this.saveBtn.setAttribute('aria-label', 'Save');
+            this.saveBtn.replaceChildren(this._createIcon('save'));
+        }, 1800);
     }
 
     /**
