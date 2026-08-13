@@ -35,6 +35,8 @@ export class TabManager extends EventEmitter {
         this.tabs.set(tabId, tab);
         this.activeTabId = tabId;
 
+        await this.storage?.saveTabState?.(tab);
+
         this.emit('tabCreated', { tabId, tab });
         return tabId;
     }
@@ -66,6 +68,7 @@ export class TabManager extends EventEmitter {
         if (tab) {
             tab.content = content;
             tab.isDirty = true;
+            await this.storage?.saveTabState?.(tab);
             this.emit('tabContentChanged', { tabId, content });
         }
     }
@@ -87,6 +90,7 @@ export class TabManager extends EventEmitter {
         const tab = this.tabs.get(tabId);
         if (tab) {
             tab.title = newTitle;
+            await this.storage?.saveTabState?.(tab);
             this.emit('tabRenamed', { tabId, title: newTitle });
         }
     }

@@ -115,6 +115,7 @@ export class WindowManager extends EventEmitter {
             prevY: y,
             tabs: [],
             activeTabId: null,
+            isActive: false,
             createdAt: new Date().toISOString(),
             zIndex: 1
         });
@@ -153,6 +154,9 @@ export class WindowManager extends EventEmitter {
         this.zIndexStack = this.zIndexStack.filter(id => id !== windowId);
         this.zIndexStack.push(windowId);
         this.activeWindowId = windowId;
+        this.windows.forEach((windowState, id) => {
+            windowState.isActive = id === windowId;
+        });
         this._refreshZIndexes();
         this.emit('windowFocused', { windowId });
     }

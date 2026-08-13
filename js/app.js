@@ -65,24 +65,48 @@ class NotepadOnlineApp {
                 // First visit - create default window
                 await this.createNewWindow();
             } else {
-                // Load previous windows
-                for (const windowState of existingWindows) {
+                const orderedWindows = [...existingWindows].sort((first, second) => (first.zIndex || 0) - (second.zIndex || 0));
+                const savedActiveWindow = orderedWindows.find(windowState => windowState.isActive && !windowState.isMinimized);
+
+                // Restore tabs before rendering their owning windows.
+                for (const windowState of orderedWindows) {
+                    const restoredTabIds = [];
+                    for (const tabId of windowState.tabs || []) {
+                        const tabState = await this.storage.getTabState(tabId);
+                        if (tabState) {
+                            this.tabManager.tabs.set(tabState.id, tabState);
+                            restoredTabIds.push(tabState.id);
+                        }
+                    }
+                    windowState.tabs = restoredTabIds;
+                    if (!restoredTabIds.includes(windowState.activeTabId)) {
+                        windowState.activeTabId = restoredTabIds[0] || null;
+                    }
+                }
+
+                // Load previous windows in their saved stacking order.
+                for (const windowState of orderedWindows) {
                     // Add window to windowManager
                     this.windowManager.windows.set(windowState.id, windowState);
                     if (!this.windowManager.zIndexStack.includes(windowState.id)) {
                         this.windowManager.zIndexStack.push(windowState.id);
                     }
-                    this.windowManager.activeWindowId = windowState.id;
                     
                     // Then render it
                     await this.renderWindow(windowState);
                 }
+
+                const fallbackActiveWindow = orderedWindows.filter(windowState => !windowState.isMinimized).at(-1);
+                this.windowManager.activeWindowId = (savedActiveWindow || fallbackActiveWindow || orderedWindows.at(-1))?.id || null;
             }
 
             console.log('✅ Windows loaded');
 
             // Attach event listeners
             this.attachEventListeners();
+            if (this.windowManager.activeWindowId) {
+                this.windowManager.bringToTop(this.windowManager.activeWindowId);
+            }
             console.log('✅ Event listeners attached');
 
             // Listen for tab content changes to update save indicator
@@ -432,11 +456,16 @@ class NotepadOnlineApp {
                 const windowState = this.windowManager.windows.get(wId);
                 if (windowState) w.style.zIndex = windowState.zIndex;
             });
+            this.persistActiveWindow(windowId);
+            this.updateDock();
         });
 
         this.windowManager.on('windowClosed', ({ windowId }) => {
             const element = query(`[data-window-id="${windowId}"]`);
             if (element) element.remove();
+            if (this.windowManager.activeWindowId) {
+                this.windowManager.bringToTop(this.windowManager.activeWindowId);
+            }
             this.updateDock();
         });
 
@@ -546,6 +575,15 @@ class NotepadOnlineApp {
         this.attachPreferencesUI();
 
         console.log('✅ Event listeners attached');
+    }
+
+    persistActiveWindow(activeWindowId) {
+        this.windowManager.windows.forEach(windowState => {
+            windowState.isActive = windowState.id === activeWindowId;
+            this.storage.saveWindowState(windowState).catch(error => {
+                console.error('Unable to persist active window:', error);
+            });
+        });
     }
 
     /**
