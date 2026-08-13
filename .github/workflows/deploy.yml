@@ -59,24 +59,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-    steps:
-      - name: Test Summary
-        run: |
-          echo "╔════════════════════════════════════════╗"
-          echo "║    NOTEPAD ONLINE CI/CD REPORT        ║"
-          echo "╚════════════════════════════════════════╝"
-          echo ""
-          echo "✅ Test Status:      ${{ needs.test.result }}"
-          echo "✅ Build Status:     ${{ needs.build.result }}"
-          echo "✅ Lint Status:      ${{ needs.lint.result }}"
-          echo "✅ Security Status:  ${{ needs.security.result }}"
-          echo "✅ Accessibility:    ${{ needs.accessibility.result }}"
-          echo "✅ Performance:      ${{ needs.performance.result }}"
-          echo ""
-          echo "📊 Summary:"
-          echo "   - Phase: 2 (StorageEngine Enhancement)"
-          echo "   - Tests: Running automatically on push"
-          echo "   - Coverage: Tracked per phase"
-          echo ""
-          echo "🔗 Actions: https://github.com/${{ github.repository }}/actions"
