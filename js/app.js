@@ -203,6 +203,11 @@ class NotepadOnlineApp {
         component.on('save', () => this.saveCurrentWindow());
         component.on('importFile', () => this.importFile(windowId));
         component.on('openRecentFile', ({ fileId }) => this.openRecentFile(windowId, fileId));
+        component.on('requestClose', () => {
+            this.showConfirmation('Close window', 'Close this window? Unsaved changes may be lost.', () => {
+                this.windowManager.closeWindow(windowId);
+            });
+        });
         component.on('tabRenamed', async ({ tabId, newTitle }) => {
             await this.tabManager.renameTab(tabId, newTitle);
             const windowState = this.windowManager.getWindow(windowId);
@@ -569,12 +574,12 @@ class NotepadOnlineApp {
                 })();
                 break;
             case 'exit':
-                if (confirm('Are you sure you want to close all windows? Your data will be saved.')) {
-                    this.showNotification('Goodbye! 👋', 'info', 1000);
+                this.showConfirmation('Exit Notepad', 'Close all windows? Your saved documents will remain available.', () => {
+                    this.showNotification('Goodbye', 'info', 1000);
                     setTimeout(() => {
                         window.close();
                     }, 500);
-                }
+                });
                 break;
             case 'find':
                 this.openFindPrompt();
@@ -924,6 +929,34 @@ class NotepadOnlineApp {
         if (duration > 0 && type === 'success') {
             setTimeout(closeModal, duration);
         }
+    }
+
+    showConfirmation(title, message, onConfirm) {
+        const modal = query('#confirm-modal');
+        const titleElement = query('#confirm-title');
+        const messageElement = query('#confirm-message');
+        const cancelButton = query('#confirm-cancel-btn');
+        const confirmButton = query('#confirm-action-btn');
+        const backdrop = query('.modal-backdrop', modal);
+        if (!modal || !titleElement || !messageElement || !cancelButton || !confirmButton) return;
+
+        titleElement.textContent = title;
+        messageElement.textContent = message;
+        removeClass(modal, 'hidden');
+        modal.style.display = 'flex';
+
+        const closeModal = () => {
+            addClass(modal, 'hidden');
+            modal.style.display = 'none';
+        };
+
+        cancelButton.onclick = closeModal;
+        backdrop.onclick = closeModal;
+        confirmButton.onclick = () => {
+            closeModal();
+            onConfirm();
+        };
+        confirmButton.focus();
     }
 }
 

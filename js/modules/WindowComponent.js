@@ -147,9 +147,7 @@ export class WindowComponent extends EventEmitter {
         
         const closeBtn = this._makeButton('close', 'window-close-btn', 'Close', (e) => {
             e.stopPropagation();
-            if (confirm('Close this window?')) {
-                this.windowManager.closeWindow(this.windowId);
-            }
+            this.emit('requestClose');
         });
         
         titleRight.append(saveBtn, minimizeBtn, this.maximizeBtn, closeBtn);
@@ -250,13 +248,6 @@ export class WindowComponent extends EventEmitter {
         input.type = 'text';
         input.value = currentTitle;
         input.className = 'window-title-input';
-        input.style.flex = '1';
-        input.style.padding = '0 4px';
-        input.style.border = '1px solid #0078D4';
-        input.style.borderRadius = '2px';
-        input.style.fontWeight = '500';
-        input.style.fontSize = '13px';
-        input.style.color = '#333';
 
         titleElement.replaceWith(input);
         input.focus();

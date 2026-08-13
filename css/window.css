@@ -123,7 +123,8 @@
 }
 
 .window-title-input {
-    flex: 1;
+    width: min(240px, 100%);
+    max-width: 240px;
     padding: 2px 4px;
     border: 1px solid #0078D4;
     border-radius: 2px;
@@ -172,8 +173,8 @@
 }
 
 .button-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     fill: none;
     stroke: currentColor;
     pointer-events: none;

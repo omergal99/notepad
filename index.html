@@ -407,6 +407,22 @@
         </div>
     </div>
 
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content notification-content" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <div class="notification-header">
+                <h3 id="confirm-title">Confirm action</h3>
+            </div>
+            <div class="notification-body">
+                <p id="confirm-message"></p>
+            </div>
+            <div class="notification-footer">
+                <button id="confirm-cancel-btn" class="btn">Cancel</button>
+                <button id="confirm-action-btn" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ======== APPLICATION ENTRY POINT ======== -->
     <script type="module" src="js/app.js"></script>
 
