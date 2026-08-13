@@ -45,7 +45,7 @@
     height: 40px;
     background: linear-gradient(to bottom, #FAFAFA, #F5F5F5);
     border-bottom: 1px solid #D0D0D0;
-    padding: 0 4px;
+    padding: 6px 4px 6px 20px;
     gap: 2px;
     cursor: move;
     flex-shrink: 0;
@@ -147,7 +147,7 @@
 .window-title-right {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 2px 6px;
     flex-shrink: 0;
     -webkit-app-region: no-drag;
     app-region: no-drag;
@@ -156,8 +156,8 @@
 .window-control-btn {
     -webkit-app-region: no-drag;
     app-region: no-drag;
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     padding: 0;
     background-color: transparent;
     color: #333;
@@ -173,8 +173,8 @@
 }
 
 .button-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     fill: none;
     stroke: currentColor;
     pointer-events: none;
@@ -372,7 +372,6 @@ body.dark-mode .tab-context-menu button {
     font-size: var(--font-size-sm);
     transition: all var(--transition-fast);
     color: var(--text-primary);
-    margin-left: 4px;
 }
 
 .tab-add-btn:hover {
@@ -522,7 +521,7 @@ body.dark-mode .tab-context-menu button {
 }
 
 .window-menu-item > button {
-    padding: 4px 6px;
+    padding: 2px 4px;
     border: 0;
     border-radius: 3px;
     background: transparent;
@@ -664,7 +663,7 @@ body.dark-mode .window-menu-dropdown button:hover {
 .open-btn {
     background: none;
     border: none;
-    padding: 4px 8px;
+    padding: 4px 4px;
     cursor: pointer;
     font-size: 16px;
     display: flex;

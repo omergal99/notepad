@@ -494,78 +494,90 @@ export class WindowComponent extends EventEmitter {
         const tabBar = query('.tab-bar', this.domElement);
         if (!tabBar) return;
 
-        // Hide tab bar if only one tab
-        if (tabs.length <= 1) {
+        const tabList = Array.isArray(tabs) ? tabs : [];
+
+        if (tabList.length <= 1) {
             tabBar.style.display = 'none';
         } else {
             tabBar.style.display = 'flex';
         }
 
-        // Find and remove all existing tab elements (keep the add button)
-        const existingTabs = tabBar.querySelectorAll('.tab');
-        existingTabs.forEach(tab => tab.remove());
+        const existingTabs = new Map(
+            Array.from(tabBar.querySelectorAll('.tab')).map(tabElement => [tabElement.getAttribute('data-tab-id'), tabElement])
+        );
+        const liveTabIds = new Set();
 
-        // Render each tab
-        tabs.forEach(tab => {
-            const tabElement = createElement('div', {
-                class: ['tab'],
-                attrs: { 'data-tab-id': tab.id }
-            });
+        tabList.forEach(tab => {
+            liveTabIds.add(tab.id);
 
-            if (tab.id === activeTabId) {
-                addClass(tabElement, 'active');
+            let tabElement = existingTabs.get(tab.id);
+            if (!tabElement) {
+                tabElement = createElement('div', {
+                    class: ['tab'],
+                    attrs: { 'data-tab-id': tab.id }
+                });
+
+                const titleElement = createElement('div', {
+                    class: ['tab-title'],
+                    text: tab.title
+                });
+
+                titleElement.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    this.startTabRename(titleElement, tab.id);
+                });
+
+                const saveIndicator = createElement('div', {
+                    class: ['tab-save-indicator']
+                });
+
+                const closeBtn = createElement('button', {
+                    class: ['tab-close'],
+                    attrs: { type: 'button', title: 'Close tab', 'aria-label': 'Close tab' }
+                });
+                closeBtn.appendChild(this._createIcon('close'));
+
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.emit('closeTab', { tabId: tab.id });
+                });
+
+                tabElement.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showTabContextMenu(tabElement, tab.id);
+                });
+
+                tabElement.addEventListener('click', () => {
+                    if (tab.id !== activeTabId) {
+                        this.switchTab(tab.id);
+                    }
+                });
+
+                tabElement.append(titleElement, saveIndicator, closeBtn);
+                tabBar.appendChild(tabElement);
+                existingTabs.set(tab.id, tabElement);
             }
 
-            if (tab.isDirty) {
-                addClass(tabElement, 'tab-unsaved');
+            const titleElement = query('.tab-title', tabElement);
+            if (titleElement) {
+                titleElement.textContent = tab.title;
             }
 
-            // Tab title - double-click to rename
-            const titleElement = createElement('div', {
-                class: ['tab-title'],
-                text: tab.title
-            });
-
-            titleElement.addEventListener('dblclick', (e) => {
-                e.stopPropagation();
-                this.startTabRename(titleElement, tab.id);
-            });
-
-            tabElement.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.showTabContextMenu(tabElement, tab.id);
-            });
-
-            // Save indicator dot
-            const saveIndicator = createElement('div', {
-                class: ['tab-save-indicator']
-            });
-            if (!tab.isDirty) {
-                saveIndicator.classList.add('saved');
+            const saveIndicator = query('.tab-save-indicator', tabElement);
+            if (saveIndicator) {
+                saveIndicator.classList.toggle('saved', !tab.isDirty);
             }
 
-            // Close button
-            const closeBtn = createElement('button', {
-                class: ['tab-close'],
-                attrs: { type: 'button', title: 'Close tab', 'aria-label': 'Close tab' }
-            });
-            closeBtn.appendChild(this._createIcon('close'));
+            tabElement.classList.toggle('active', tab.id === activeTabId);
+            tabElement.classList.toggle('tab-unsaved', Boolean(tab.isDirty));
+        });
 
-            closeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.emit('closeTab', { tabId: tab.id });
-            });
-
-            // Tab click to switch
-            tabElement.addEventListener('click', () => {
-                if (tab.id !== activeTabId) {
-                    this.switchTab(tab.id);
-                }
-            });
-
-            tabElement.append(titleElement, saveIndicator, closeBtn);
-            tabBar.insertBefore(tabElement, tabBar.lastChild);
+        Array.from(tabBar.querySelectorAll('.tab')).forEach(tabElement => {
+            const tabId = tabElement.getAttribute('data-tab-id');
+            if (!liveTabIds.has(tabId)) {
+                tabElement.remove();
+            }
         });
     }
 
@@ -577,7 +589,8 @@ export class WindowComponent extends EventEmitter {
     }
 
     showTabContextMenu(tabElement, tabId) {
-        this.domElement.querySelectorAll('.tab-context-menu').forEach(menu => menu.remove());
+        const activeMenu = this.domElement.querySelector('.tab-context-menu');
+        if (activeMenu) activeMenu.remove();
 
         const menu = createElement('div', { class: ['tab-context-menu'] });
         const rename = createElement('button', { text: 'Rename', attrs: { type: 'button' } });
@@ -594,8 +607,20 @@ export class WindowComponent extends EventEmitter {
         });
 
         menu.append(rename, save);
-        tabElement.appendChild(menu);
-        setTimeout(() => document.addEventListener('pointerdown', () => menu.remove(), { once: true }), 0);
+        this.domElement.appendChild(menu);
+
+        const tabRect = tabElement.getBoundingClientRect();
+        const windowRect = this.domElement.getBoundingClientRect();
+        menu.style.left = `${tabRect.left - windowRect.left}px`;
+        menu.style.top = `${tabRect.bottom - windowRect.top + 2}px`;
+
+        setTimeout(() => {
+            document.addEventListener('pointerdown', (event) => {
+                if (!menu.contains(event.target)) {
+                    menu.remove();
+                }
+            }, { once: true });
+        }, 0);
     }
 
     /**

@@ -407,22 +407,22 @@ class NotepadOnlineApp {
         const windowComponent = this.windowComponents.get(windowId);
         if (!windowComponent) return;
 
-        // Hide all editors in this window
         const editorHost = query('.window-content', windowComponent.domElement);
         if (editorHost) {
             queryAll('.editor', editorHost).forEach(editor => {
                 editor.style.display = 'none';
             });
 
-            // Show only active tab's editor. The tab bar and editor use the same tab id,
-            // so we must target the .editor element specifically.
             const activeEditor = findMatchingEditor(editorHost, activeTabId);
             if (activeEditor) {
                 activeEditor.style.display = 'flex';
+                const textarea = query('.editor-textarea', activeEditor);
+                if (textarea) {
+                    setTimeout(() => textarea.focus(), 0);
+                }
             }
         }
 
-        // Update window title to match active tab
         const activeTab = this.tabManager.getTab(activeTabId);
         if (activeTab && windowComponent.windowState) {
             windowComponent.windowState.title = activeTab.title || 'Untitled';
@@ -611,24 +611,8 @@ class NotepadOnlineApp {
                 this.saveCurrentWindow();
                 break;
             case 'saveAll':
-                // Save all dirty tabs
                 (async () => {
-                    for (const [tabId, editor] of this.editorComponents) {
-                        const tab = this.tabManager.getTab(tabId);
-                        if (tab && tab.isDirty) {
-                            await this.storage.saveNote(tabId, editor.getContent(), { tabTitle: tab.title });
-                            tab.isDirty = false;
-                        }
-                    }
-                    this.showNotification('✓ All saved', 'success', 1500);
-                    // Re-render all tab bars
-                    for (const [windowId, component] of this.windowComponents) {
-                        const windowState = this.windowManager.getWindow(windowId);
-                        if (windowState && windowState.tabs) {
-                            const tabsData = windowState.tabs.map(id => this.tabManager.getTab(id)).filter(t => t);
-                            component.renderTabs(tabsData, windowState.activeTabId);
-                        }
-                    }
+                    await this.saveAllTabsInWindow(this.windowManager.activeWindowId || [...this.windowComponents.keys()][0]);
                 })();
                 break;
             case 'exit':
@@ -772,7 +756,10 @@ class NotepadOnlineApp {
             textWrap: query('#pref-text-wrap'),
             lineNumbers: query('#pref-line-numbers'),
             statusBar: query('#pref-status-bar'),
-            minimap: query('#pref-minimap')
+            minimap: query('#pref-minimap'),
+            saveAllTabs: query('#pref-save-all-tabs'),
+            autoSave: query('#pref-auto-save'),
+            createBackup: query('#pref-create-backup')
         };
 
         // Font size slider updates display value
@@ -905,15 +892,56 @@ class NotepadOnlineApp {
     /**
      * Start auto-save timer
      */
+    async saveAllTabsInWindow(windowId) {
+        if (!windowId) return;
+
+        const windowState = this.windowManager.getWindow(windowId);
+        if (!windowState || !windowState.tabs) return;
+
+        let savedCount = 0;
+        for (const tabId of windowState.tabs) {
+            const tab = this.tabManager.getTab(tabId);
+            const editor = this.editorComponents.get(tabId);
+            if (!tab || !editor || !tab.isDirty) continue;
+
+            tab.noteId = await this.storage.saveNote(tabId, editor.getContent(), {
+                ...(tab.noteId ? { id: tab.noteId } : {}),
+                tabTitle: tab.title,
+                windowId
+            });
+            tab.isDirty = false;
+            savedCount++;
+        }
+
+        const component = this.windowComponents.get(windowId);
+        if (component && windowState.tabs) {
+            const tabsData = windowState.tabs.map(id => this.tabManager.getTab(id)).filter(t => t);
+            component.renderTabs(tabsData, windowState.activeTabId);
+            if (savedCount > 0) component.indicateSaved();
+        }
+
+        if (savedCount > 0) {
+            this.showNotification('✓ Saved all tabs', 'success', 1500);
+            this.refreshRecentFiles(windowId);
+        }
+    }
+
     /**
-     * Save current window's active tab
+     * Save current window's active tab, or all tabs if configured
      */
     async saveCurrentWindow() {
         const activeWindowId = this.windowManager.activeWindowId;
         if (!activeWindowId) return;
 
         const windowState = this.windowManager.getWindow(activeWindowId);
-        if (!windowState || !windowState.activeTabId) return;
+        if (!windowState) return;
+
+        if (this.preferencesManager.globalPreferences.saveAllTabs) {
+            await this.saveAllTabsInWindow(activeWindowId);
+            return;
+        }
+
+        if (!windowState.activeTabId) return;
 
         const tab = this.tabManager.getTab(windowState.activeTabId);
         const editor = this.editorComponents.get(windowState.activeTabId);
@@ -926,7 +954,6 @@ class NotepadOnlineApp {
             });
             tab.isDirty = false;
             
-            // Update tab bar to show saved status
             const component = this.windowComponents.get(activeWindowId);
             if (component && windowState.tabs) {
                 const tabsData = windowState.tabs.map(id => this.tabManager.getTab(id)).filter(t => t);

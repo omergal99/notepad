@@ -37,6 +37,7 @@ export class PreferencesManager extends EventEmitter {
             autoSave: true,
             autoSaveInterval: 60000, // 1 minute
             createBackup: true,
+            saveAllTabs: true,
             darkMode: false
         };
     }
