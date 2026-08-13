@@ -67,7 +67,15 @@ class NotepadOnlineApp {
             } else {
                 // Load previous windows
                 for (const windowState of existingWindows) {
-                    this.renderWindow(windowState);
+                    // Add window to windowManager
+                    this.windowManager.windows.set(windowState.id, windowState);
+                    if (!this.windowManager.zIndexStack.includes(windowState.id)) {
+                        this.windowManager.zIndexStack.push(windowState.id);
+                    }
+                    this.windowManager.activeWindowId = windowState.id;
+                    
+                    // Then render it
+                    await this.renderWindow(windowState);
                 }
             }
 
@@ -83,7 +91,6 @@ class NotepadOnlineApp {
             }
 
             console.log('✨ Notepad Online is ready!');
-            this.showNotification('Welcome to Notepad Online', 'success');
 
         } catch (error) {
             console.error('❌ Initialization error:', error);
@@ -121,10 +128,27 @@ class NotepadOnlineApp {
                 await this.createNewTab(windowState.id);
             }
 
-            // Render existing tabs
-            for (const tabId of windowState.tabs || []) {
+            // Get tabs and their data
+            const tabIds = windowState.tabs || [];
+            const tabsData = tabIds.map(tabId => this.tabManager.getTab(tabId)).filter(t => t);
+            
+            // Render all editors for the tabs (they'll be hidden/shown as needed)
+            for (const tabId of tabIds) {
                 await this.renderTab(windowState.id, tabId);
             }
+
+            // Set active tab (default to first tab)
+            const activeTabId = windowState.activeTabId || tabIds[0];
+            windowState.activeTabId = activeTabId;
+            
+            // Render tab bar with tabs
+            component.renderTabs(tabsData, activeTabId);
+            
+            // Show only active tab's editor
+            this.showActiveTabEditor(windowState.id, activeTabId);
+
+            // Attach window-level event listeners
+            this.attachWindowEventListeners(windowState.id, component);
 
             // Update dock
             this.updateDock();
@@ -132,6 +156,31 @@ class NotepadOnlineApp {
         } catch (error) {
             console.error('Error rendering window:', error);
         }
+    }
+
+    /**
+     * Attach event listeners to a specific window component
+     */
+    attachWindowEventListeners(windowId, component) {
+        // Handle tab switching
+        component.on('switchTab', async (data) => {
+            const windowState = this.windowManager.getWindow(windowId);
+            windowState.activeTabId = data.tabId;
+            await this.storage.saveWindowState(windowState);
+            this.showActiveTabEditor(windowId, data.tabId);
+            this.updateWindowTabBar(windowId);
+        });
+
+        // Handle tab closing
+        component.on('closeTab', async (data) => {
+            await this.closeTab(data.tabId, windowId);
+        });
+
+        // Handle add tab
+        component.on('addTab', async () => {
+            await this.createNewTab(windowId);
+            this.updateWindowTabBar(windowId);
+        });
     }
 
     /**
@@ -143,8 +192,9 @@ class NotepadOnlineApp {
             const windowState = this.windowManager.getWindow(windowId);
             if (!windowState.tabs) windowState.tabs = [];
             windowState.tabs.push(tabId);
+            windowState.activeTabId = tabId;
 
-            await this.storage.saveWindowState(windowId, windowState);
+            await this.storage.saveWindowState(windowState);
             await this.renderTab(windowId, tabId);
 
             return tabId;
@@ -154,7 +204,40 @@ class NotepadOnlineApp {
     }
 
     /**
-     * Render a tab to DOM
+     * Close a tab in a window
+     */
+    async closeTab(tabId, windowId) {
+        try {
+            const windowState = this.windowManager.getWindow(windowId);
+            if (!windowState || !windowState.tabs) return;
+
+            // Remove tab from window
+            windowState.tabs = windowState.tabs.filter(id => id !== tabId);
+            
+            // Remove editor component
+            this.editorComponents.delete(tabId);
+
+            // If this was the active tab, switch to another
+            if (windowState.activeTabId === tabId) {
+                windowState.activeTabId = windowState.tabs[0] || null;
+            }
+
+            // If no tabs left, create a new one
+            if (windowState.tabs.length === 0) {
+                await this.createNewTab(windowId);
+            } else {
+                await this.tabManager.closeTab(tabId);
+                await this.storage.saveWindowState(windowState);
+                this.updateWindowTabBar(windowId);
+                this.showActiveTabEditor(windowId, windowState.activeTabId);
+            }
+        } catch (error) {
+            console.error('Error closing tab:', error);
+        }
+    }
+
+    /**
+     * Render a tab to DOM (creates editor component)
      */
     async renderTab(windowId, tabId) {
         try {
@@ -177,9 +260,76 @@ class NotepadOnlineApp {
     }
 
     /**
+     * Show only the active tab's editor
+     */
+    showActiveTabEditor(windowId, activeTabId) {
+        const windowComponent = this.windowComponents.get(windowId);
+        if (!windowComponent) return;
+
+        // Hide all editors in this window
+        const editors = query('.editor-container', windowComponent.domElement);
+        if (editors) {
+            queryAll('.editor', editors).forEach(editor => {
+                editor.style.display = 'none';
+            });
+
+            // Show only active tab's editor
+            const activeEditor = query(`[data-tab-id="${activeTabId}"]`, editors);
+            if (activeEditor) {
+                activeEditor.style.display = 'flex';
+            }
+        }
+    }
+
+    /**
+     * Update window tab bar display
+     */
+    updateWindowTabBar(windowId) {
+        const windowState = this.windowManager.getWindow(windowId);
+        const windowComponent = this.windowComponents.get(windowId);
+        if (!windowComponent || !windowState) return;
+
+        const tabIds = windowState.tabs || [];
+        const tabsData = tabIds.map(tabId => this.tabManager.getTab(tabId)).filter(t => t);
+        
+        windowComponent.renderTabs(tabsData, windowState.activeTabId);
+    }
+
+    /**
      * Attach event listeners to UI elements
      */
     attachEventListeners() {
+        // Window Manager Events - Handle focus, minimize, close
+        this.windowManager.on('windowFocused', ({ windowId }) => {
+            // Remove active class from all windows
+            queryAll('.window').forEach(w => removeClass(w, 'active'));
+            // Add active class to focused window
+            const focusedWindow = query(`[data-window-id="${windowId}"]`);
+            if (focusedWindow) addClass(focusedWindow, 'active');
+            // Update z-index
+            queryAll('.window').forEach(w => {
+                const wId = w.getAttribute('data-window-id');
+                const windowState = this.windowManager.windows.get(wId);
+                if (windowState) w.style.zIndex = windowState.zIndex;
+            });
+        });
+
+        this.windowManager.on('windowClosed', ({ windowId }) => {
+            const element = query(`[data-window-id="${windowId}"]`);
+            if (element) element.remove();
+            this.updateDock();
+        });
+
+        this.windowManager.on('windowMinimized', ({ windowId }) => {
+            const element = query(`[data-window-id="${windowId}"]`);
+            if (element) addClass(element, 'minimized');
+        });
+
+        this.windowManager.on('windowRestored', ({ windowId }) => {
+            const element = query(`[data-window-id="${windowId}"]`);
+            if (element) removeClass(element, 'minimized');
+        });
+
         // New window button
         const btnNewWindow = query('#btn-new-window');
         if (btnNewWindow) {
@@ -219,7 +369,114 @@ class NotepadOnlineApp {
         this.keyboardShortcuts.on('openPreferences', () => toggle(query('#preferences-modal'), true, 'flex'));
         this.keyboardShortcuts.on('openHelp', () => toggle(query('#help-modal'), true, 'flex'));
 
+        // Attach preferences modal handlers
+        this.attachPreferencesUI();
+
         console.log('✅ Event listeners attached');
+    }
+
+    /**
+     * Attach preferences modal UI handlers
+     */
+    attachPreferencesUI() {
+        const prefsModal = query('#preferences-modal');
+        if (!prefsModal) return;
+
+        // Preference input elements
+        const inputs = {
+            fontFamily: query('#pref-font-family'),
+            fontSize: query('#pref-font-size'),
+            textColor: query('#pref-text-color'),
+            backgroundColor: query('#pref-bg-color'),
+            tabWidth: query('#pref-tab-width'),
+            autoIndent: query('#pref-auto-indent'),
+            textWrap: query('#pref-text-wrap'),
+            lineNumbers: query('#pref-line-numbers'),
+            statusBar: query('#pref-status-bar'),
+            minimap: query('#pref-minimap')
+        };
+
+        // Font size slider updates display value
+        if (inputs.fontSize) {
+            inputs.fontSize.addEventListener('input', () => {
+                const sizeValue = query('#pref-size-value');
+                if (sizeValue) sizeValue.textContent = inputs.fontSize.value;
+            });
+        }
+
+        // Load current preferences when modal opens
+        const btnGlobalPrefs = query('#btn-global-prefs');
+        if (btnGlobalPrefs) {
+            const originalClick = btnGlobalPrefs.onclick;
+            btnGlobalPrefs.addEventListener('click', () => {
+                setTimeout(() => this.loadPreferencesUI(inputs), 0);
+            });
+        }
+
+        // Save preferences button
+        const btnSavePrefs = query('#btn-save-defaults');
+        if (btnSavePrefs) {
+            btnSavePrefs.addEventListener('click', async () => {
+                const prefs = {};
+                Object.keys(inputs).forEach(key => {
+                    const input = inputs[key];
+                    if (!input) return;
+                    
+                    if (input.type === 'checkbox') {
+                        prefs[key] = input.checked;
+                    } else if (input.type === 'range' || input.type === 'number') {
+                        prefs[key] = parseInt(input.value);
+                    } else {
+                        prefs[key] = input.value;
+                    }
+                });
+
+                await this.preferencesManager.saveGlobalPreferences(prefs);
+                this.applyPreferencesToAll(prefs);
+                this.showNotification('Preferences saved', 'success');
+                toggle(prefsModal, false);
+            });
+        }
+
+        // Close preferences button
+        const btnClosePrefs = query('#btn-close-prefs');
+        if (btnClosePrefs) {
+            btnClosePrefs.addEventListener('click', () => {
+                toggle(prefsModal, false);
+            });
+        }
+    }
+
+    /**
+     * Load current preferences into UI
+     */
+    loadPreferencesUI(inputs) {
+        const prefs = this.preferencesManager.globalPreferences;
+        
+        Object.keys(inputs).forEach(key => {
+            const input = inputs[key];
+            if (!input) return;
+            
+            const value = prefs[key];
+            if (input.type === 'checkbox') {
+                input.checked = Boolean(value);
+            } else if (input.type === 'range') {
+                input.value = String(value);
+                const sizeValue = query('#pref-size-value');
+                if (sizeValue) sizeValue.textContent = String(value);
+            } else {
+                input.value = String(value);
+            }
+        });
+    }
+
+    /**
+     * Apply preferences to all open editors
+     */
+    applyPreferencesToAll(prefs) {
+        this.editorComponents.forEach(editor => {
+            editor.applyPreferences(prefs);
+        });
     }
 
     /**

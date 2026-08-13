@@ -28,8 +28,12 @@ export class EditorComponent extends EventEmitter {
         if (!tab) return null;
 
         this.domElement = createElement('div', {
-            class: ['editor']
+            class: ['editor'],
+            attrs: { 'data-tab-id': this.tabId }
         });
+
+        // Hidden by default, shown when active
+        this.domElement.style.display = 'none';
 
         // Editor inner container
         const innerContainer = createElement('div', {

@@ -957,4 +957,45 @@ export class StorageEngine extends EventEmitter {
   _countWords(text) {
     return text.trim().split(/\s+/).filter(w => w.length > 0).length;
   }
+
+  /**
+   * Get value from localStorage (wrapper for compatibility)
+   */
+  getLocalStorage(key) {
+    try {
+      if (!this.isLocalStorageAvailable) {
+        return null;
+      }
+      const value = localStorage.getItem(key);
+      if (!value) return null;
+      try {
+        return JSON.parse(value);
+      } catch (e) {
+        // Return as-is if not JSON
+        return value;
+      }
+    } catch (error) {
+      console.warn(`⚠️ getLocalStorage error for key ${key}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Set value to localStorage (wrapper for compatibility)
+   */
+  setLocalStorage(key, value) {
+    try {
+      if (!this.isLocalStorageAvailable) {
+        return false;
+      }
+      const jsonValue = typeof value === 'string' ? value : JSON.stringify(value);
+      localStorage.setItem(key, jsonValue);
+      return true;
+    } catch (error) {
+      console.warn(`⚠️ setLocalStorage error for key ${key}:`, error);
+      return false;
+    }
+  }
 }
+
+export default StorageEngine;

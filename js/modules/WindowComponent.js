@@ -4,9 +4,11 @@
  */
 
 import { createElement, query, addClass, removeClass } from '../utils/domUtils.js';
+import { EventEmitter } from '../utils/eventEmitter.js';
 
-export class WindowComponent {
+export class WindowComponent extends EventEmitter {
     constructor(windowManager, windowId, windowState) {
+        super();
         this.windowManager = windowManager;
         this.windowId = windowId;
         this.windowState = windowState;
@@ -40,38 +42,67 @@ export class WindowComponent {
         this.domElement.style.height = `${this.windowState.height}px`;
         this.domElement.style.zIndex = String(this.windowState.zIndex || 1);
 
+        // ===== BUILD TITLE BAR: [+ button] [title center] [save min max close] =====
         const titleBar = createElement('div', { class: ['window-title-bar'] });
+        
+        // LEFT: Add tab button
+        const titleLeft = createElement('div', { class: ['window-title-left'] });
+        const addTabBtn = createElement('button', {
+            class: ['window-control-btn', 'tab-add-btn'],
+            text: '+',
+            attrs: { type: 'button', title: 'New Tab' }
+        });
+        addTabBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.emit('addTab');
+        });
+        titleLeft.appendChild(addTabBtn);
+        
+        // CENTER: Title text
         const titleText = createElement('div', {
             class: ['window-title-text'],
             text: this.windowState.title || 'Untitled'
         });
-
-        const controls = createElement('div', { class: ['window-title-controls'] });
-        const saveBtn = this._makeButton('Save', 'window-save-btn', 'Save', async () => {
+        titleLeft.appendChild(titleText);
+        
+        // RIGHT: Control buttons (Save, Delete, Minimize, Maximize, Close)
+        const titleRight = createElement('div', { class: ['window-title-right'] });
+        
+        const saveBtn = this._makeButton('💾', 'window-save-btn', 'Save', async (e) => {
+            e.stopPropagation();
             if (this.windowManager && typeof this.windowManager.saveWindowState === 'function') {
                 await this.windowManager.saveWindowState(this.windowId);
             }
         });
-        const deleteBtn = this._makeButton('Delete', 'window-delete-btn', 'Delete', async () => {
-            if (this.windowManager && typeof this.windowManager.closeWindow === 'function') {
-                await this.windowManager.closeWindow(this.windowId);
-            }
+        
+        const minimizeBtn = this._makeButton('−', 'window-minimize-btn', 'Minimize', (e) => {
+            e.stopPropagation();
+            this.windowManager.minimizeWindow(this.windowId);
         });
-        const minimizeBtn = this._makeButton('_', 'window-minimize-btn', 'Minimize', () => this.windowManager.minimizeWindow(this.windowId));
-        const maximizeBtn = this._makeButton('□', 'window-maximize-btn', 'Maximize / Restore', () => {
+        
+        const maximizeBtn = this._makeButton('□', 'window-maximize-btn', 'Maximize', (e) => {
+            e.stopPropagation();
             if (this.windowState.isMaximized) {
                 this.windowManager.restoreWindowSize(this.windowId);
             } else {
                 this.windowManager.maximizeWindow(this.windowId);
             }
         });
-        const closeBtn = this._makeButton('✕', 'window-close-btn', 'Close', () => this.windowManager.closeWindow(this.windowId));
-
-        controls.append(saveBtn, deleteBtn, minimizeBtn, maximizeBtn, closeBtn);
-        titleBar.append(titleText, controls);
+        
+        const closeBtn = this._makeButton('✕', 'window-close-btn', 'Close', (e) => {
+            e.stopPropagation();
+            this.windowManager.closeWindow(this.windowId);
+        });
+        
+        titleRight.append(saveBtn, minimizeBtn, maximizeBtn, closeBtn);
+        titleBar.append(titleLeft, titleRight);
 
         const content = createElement('div', { class: ['window-content'] });
-        const menuBar = createElement('div', { class: ['window-menu-bar'], text: 'File Edit View Tools Help' });
+        
+        // Create tab bar (removed menu bar, it's unnecessary)
+        const tabBar = createElement('div', { class: ['tab-bar'] });
+        tabBar.setAttribute('data-window-id', this.windowId);
+        
         const editorWrapper = createElement('div', { class: ['editor-container'] });
         const editor = createElement('textarea', {
             class: ['window-editor'],
@@ -79,7 +110,7 @@ export class WindowComponent {
         });
         editor.value = this.windowState.content || '';
         editorWrapper.appendChild(editor);
-        content.append(menuBar, editorWrapper);
+        content.append(tabBar, editorWrapper);
 
         this.domElement.append(titleBar, content);
         this.addResizeHandles();
@@ -253,6 +284,93 @@ export class WindowComponent {
     destroy() {
         if (this.domElement && this.domElement.parentElement) {
             this.domElement.parentElement.removeChild(this.domElement);
+        }
+    }
+
+    /**
+     * Render tabs in the tab bar
+     */
+    renderTabs(tabs, activeTabId) {
+        const tabBar = query('.tab-bar', this.domElement);
+        if (!tabBar) return;
+
+        // Find and remove all existing tab elements (keep the add button)
+        const existingTabs = tabBar.querySelectorAll('.tab');
+        existingTabs.forEach(tab => tab.remove());
+
+        // Render each tab
+        tabs.forEach(tab => {
+            const tabElement = createElement('div', {
+                class: ['tab'],
+                attrs: { 'data-tab-id': tab.id }
+            });
+
+            if (tab.id === activeTabId) {
+                addClass(tabElement, 'active');
+            }
+
+            if (tab.isDirty) {
+                addClass(tabElement, 'tab-unsaved');
+            }
+
+            // Tab title
+            const titleElement = createElement('div', {
+                class: ['tab-title'],
+                text: tab.title
+            });
+
+            // Close button
+            const closeBtn = createElement('button', {
+                class: ['tab-close'],
+                text: '✕',
+                attrs: { type: 'button', title: 'Close tab' }
+            });
+
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.emit('closeTab', { tabId: tab.id });
+            });
+
+            // Tab click to switch
+            tabElement.addEventListener('click', () => {
+                this.switchTab(tab.id);
+            });
+
+            tabElement.append(titleElement, closeBtn);
+            tabBar.insertBefore(tabElement, tabBar.lastChild);
+        });
+    }
+
+    /**
+     * Switch to a different tab
+     */
+    switchTab(tabId) {
+        this.emit('switchTab', { tabId });
+    }
+
+    /**
+     * Update tab visual state
+     */
+    updateTabState(tabId, tab) {
+        const tabElement = query(`[data-tab-id="${tabId}"]`, this.domElement);
+        if (!tabElement) return;
+
+        // Update active state
+        const allTabs = query('.tab-bar', this.domElement).querySelectorAll('.tab');
+        allTabs.forEach(t => removeClass(t, 'active'));
+        if (tabElement) addClass(tabElement, 'active');
+
+        // Update unsaved state
+        if (tab.isDirty) {
+            addClass(tabElement, 'tab-unsaved');
+        } else {
+            removeClass(tabElement, 'tab-unsaved');
+        }
+
+        // Update title
+        const titleEl = query('.tab-title', tabElement);
+        if (titleEl) {
+            titleEl.textContent = tab.title;
         }
     }
 }

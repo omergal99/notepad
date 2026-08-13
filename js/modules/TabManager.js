@@ -5,7 +5,7 @@
  */
 
 import { EventEmitter } from '../utils/eventEmitter.js';
-import { v4 as uuidv4 } from 'https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/esm-browser/index.js';
+import { v4 as uuidv4 } from '../utils/uuid.js';
 
 export class TabManager extends EventEmitter {
     constructor(storage) {

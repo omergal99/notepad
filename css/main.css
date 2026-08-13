@@ -71,15 +71,106 @@
 
 /* Dark Mode Overrides */
 body.dark-mode {
-    --bg-cream: #1E1E1E;
-    --bg-light: #252526;
+    --bg-cream: #2D2D30;
+    --bg-light: #3C3C41;
     --bg-dark: #1E1E1E;
-    --text-primary: #E0E0E0;
-    --text-secondary: #B0B0B0;
+    --text-primary: #CCCCCC;
+    --text-secondary: #A0A0A0;
     --text-light: #707070;
     --text-dark: #333333;
-    --border-color: #3E3E42;
+    --border-color: #464647;
     color-scheme: dark;
+}
+
+body.dark-mode .window {
+    background-color: #3C3C41;
+    color: #CCCCCC;
+    border-color: #464647;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .window.active {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 0 1px #0078D4;
+}
+
+body.dark-mode .window-title-bar {
+    background: linear-gradient(to bottom, #464647, #3C3C41) !important;
+    border-bottom-color: #3E3E42;
+}
+
+body.dark-mode .window-title-text {
+    color: #CCCCCC;
+}
+
+body.dark-mode .tab-bar {
+    background-color: #3C3C41;
+    border-bottom-color: #464647;
+}
+
+body.dark-mode .tab {
+    background-color: #464647;
+    border-color: #3E3E42;
+    color: #A0A0A0;
+}
+
+body.dark-mode .tab:hover {
+    background-color: #505052;
+}
+
+body.dark-mode .tab {
+    background-color: #464647;
+    border-color: #3E3E42;
+    color: #A0A0A0;
+}
+
+body.dark-mode .tab:hover {
+    background-color: #505052;
+}
+
+body.dark-mode .tab.active {
+    background-color: #3C3C41;
+    border-bottom-color: #3C3C41;
+    color: #CCCCCC;
+}
+
+body.dark-mode #top-menu {
+    background-color: #3C3C41;
+    border-bottom-color: #464647;
+}
+
+body.dark-mode .menu-logo {
+    color: #CCCCCC;
+}
+
+body.dark-mode .btn-menu-icon {
+    color: #CCCCCC;
+}
+
+body.dark-mode .btn-menu-icon:hover {
+    background-color: #464647;
+}
+
+body.dark-mode #bottom-dock {
+    background-color: #3C3C41;
+    border-top-color: #464647;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .dock-item {
+    background-color: #464647;
+    border-color: #3E3E42;
+    color: #A0A0A0;
+}
+
+body.dark-mode .dock-item:hover {
+    background-color: #505052;
+}
+
+body.dark-mode .dock-item.active {
+    background-color: #0078D4;
+    color: white;
+    border-color: #0078D4;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.5);
 }
 
 /* ============================================
