@@ -206,7 +206,7 @@
     position: absolute;
     top: calc(100% + 2px);
     left: 0;
-    z-index: 20;
+    z-index: 40;
     min-width: 112px;
     padding: 4px;
     border: 1px solid #CFCFCF;
@@ -250,6 +250,7 @@ body.dark-mode .tab-context-menu button {
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    z-index: 1;
     min-height: 0;
 }
 

@@ -221,6 +221,10 @@ class NotepadOnlineApp {
         // Handle add tab
         component.on('addTab', async () => {
             await this.createNewTab(windowId);
+            const activeTabId = this.windowManager.getWindow(windowId)?.activeTabId;
+            if (activeTabId) {
+                this.showActiveTabEditor(windowId, activeTabId);
+            }
             this.updateWindowTabBar(windowId);
         });
 
@@ -316,6 +320,7 @@ class NotepadOnlineApp {
         try {
             const tabId = await this.tabManager.createTab(windowId, options);
             const windowState = this.windowManager.getWindow(windowId);
+            if (!windowState) return tabId;
             if (!windowState.tabs) windowState.tabs = [];
             
             // Insert new tab after the currently active tab (or at the end)
@@ -327,9 +332,11 @@ class NotepadOnlineApp {
             }
             
             windowState.activeTabId = tabId;
+            this.windowManager.activeWindowId = windowId;
 
             await this.storage.saveWindowState(windowState);
             await this.renderTab(windowId, tabId);
+            this.showActiveTabEditor(windowId, tabId);
             this.updateWindowTabBar(windowId);
 
             return tabId;
@@ -970,15 +977,13 @@ class NotepadOnlineApp {
         
         if (!modal || !title || !body) return;
 
-        // Set message
         title.textContent = type === 'success' ? '✓ Success' : type === 'error' ? '✗ Error' : 'Message';
         body.textContent = message;
 
-        // Show modal
         removeClass(modal, 'hidden');
         modal.style.display = 'flex';
+        modal.style.pointerEvents = 'auto';
 
-        // Close handler
         const closeModal = () => {
             addClass(modal, 'hidden');
             modal.style.display = 'none';
@@ -987,8 +992,7 @@ class NotepadOnlineApp {
         okBtn.onclick = closeModal;
         closeBtn.onclick = closeModal;
 
-        // Auto-close if duration specified (for less intrusive messages)
-        if (duration > 0 && type === 'success') {
+        if (duration > 0) {
             setTimeout(closeModal, duration);
         }
     }

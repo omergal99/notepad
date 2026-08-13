@@ -13,9 +13,12 @@ import { findMatchingEditor } from '../js/utils/domUtils.js';
 describe('EditorComponent & TabManager', () => {
   test('should select the active editor element instead of the tab element with the same tab id', () => {
     const tabEl = { getAttribute: (name) => name === 'data-tab-id' ? 'tab-42' : null, style: {} };
-    const editorEl = { getAttribute: (name) => name === 'data-tab-id' ? 'tab-42' : null, style: {} };
+    const editorEl = {
+      getAttribute: (name) => name === 'data-tab-id' ? 'tab-42' : null,
+      style: {}
+    };
     const editorHost = {
-      querySelectorAll: (selector) => selector === '.editor' ? [tabEl, editorEl] : []
+      querySelectorAll: (selector) => selector === '.editor' ? [editorEl] : []
     };
 
     const result = findMatchingEditor(editorHost, 'tab-42');

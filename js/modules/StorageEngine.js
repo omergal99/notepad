@@ -396,6 +396,49 @@ export class StorageEngine extends EventEmitter {
     }
   }
 
+  /**
+   * Delete a tab state from storage
+   */
+  async deleteTabState(tabId) {
+    try {
+      await this._dbDelete(STORES.TABS, tabId);
+      return true;
+    } catch (error) {
+      console.error('❌ deleteTabState error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a window state and any tab states associated with it.
+   */
+  async deleteWindowState(windowId) {
+    try {
+      if (this.isLocalStorageAvailable) {
+        try {
+          const states = JSON.parse(localStorage.getItem(LS_KEYS.WINDOW_STATES) || '[]');
+          const filtered = states.filter(windowState => windowState.id !== windowId);
+          localStorage.setItem(LS_KEYS.WINDOW_STATES, JSON.stringify(filtered));
+        } catch (e) {
+          console.warn('⚠️ localStorage window delete failed:', e);
+        }
+      }
+
+      const tabStates = await this._dbGetAll(STORES.TABS) || [];
+      for (const tabState of tabStates) {
+        if (tabState.windowId === windowId) {
+          await this._dbDelete(STORES.TABS, tabState.id);
+        }
+      }
+
+      await this._dbDelete(STORES.WINDOWS, windowId);
+      return true;
+    } catch (error) {
+      console.error('❌ deleteWindowState error:', error);
+      throw error;
+    }
+  }
+
   // ===================================================================
   // PREFERENCES & PRESETS
   // ===================================================================
