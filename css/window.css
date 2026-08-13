@@ -38,7 +38,8 @@
    ============================================ */
 
 .window-title-bar {
-    display: flex;
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
     align-items: center;
     justify-content: space-between;
     height: 40px;
@@ -67,12 +68,6 @@
     min-width: 0;
     -webkit-app-region: no-drag;
     app-region: no-drag;
-}
-
-.window-title-left .tab-add-btn {
-    flex-shrink: 0;
-    height: 28px;
-    padding: 0 8px;
 }
 
 .window-title-center {
@@ -174,6 +169,14 @@
     font-size: 16px;
     transition: all 150ms ease;
     flex-shrink: 0;
+}
+
+.button-icon {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    pointer-events: none;
 }
 
 .window.active .window-control-btn {

@@ -54,6 +54,24 @@
     gap: var(--spacing-sm);
 }
 
+.btn-menu-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-light);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.btn-menu-icon:hover {
+    background-color: #E8E8E8;
+    border-color: #B8B8B8;
+}
+
 /* ============================================
    WINDOWS CONTAINER (Floating Windows)
    ============================================ */

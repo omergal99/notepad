@@ -455,10 +455,13 @@ class NotepadOnlineApp {
         if (btnThemeToggle) {
             btnThemeToggle.addEventListener('click', () => {
                 this.themeEngine.toggleDarkMode();
-                btnThemeToggle.textContent = this.themeEngine.isDarkMode ? 'Light' : 'Dark';
+                const label = this.themeEngine.isDarkMode ? 'Switch to light theme' : 'Switch to dark theme';
+                btnThemeToggle.title = label;
+                btnThemeToggle.setAttribute('aria-label', label);
             });
-            // Set initial state
-            btnThemeToggle.textContent = this.themeEngine.isDarkMode ? 'Light' : 'Dark';
+            const label = this.themeEngine.isDarkMode ? 'Switch to light theme' : 'Switch to dark theme';
+            btnThemeToggle.title = label;
+            btnThemeToggle.setAttribute('aria-label', label);
         }
 
         // Global preferences

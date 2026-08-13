@@ -19,12 +19,23 @@ export class WindowComponent extends EventEmitter {
         this.rafId = null;
     }
 
-    _makeButton(label, className, title, onClick) {
+    _createIcon(iconName) {
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        icon.classList.add('button-icon');
+        icon.setAttribute('viewBox', '0 0 24 24');
+        icon.setAttribute('aria-hidden', 'true');
+        use.setAttribute('href', `assets/icons.svg#${iconName}`);
+        icon.appendChild(use);
+        return icon;
+    }
+
+    _makeButton(iconName, className, title, onClick) {
         const button = createElement('button', {
             class: ['window-control-btn', className],
-            text: label,
-            attrs: { type: 'button', title }
+            attrs: { type: 'button', title, 'aria-label': title }
         });
+        button.appendChild(this._createIcon(iconName));
         button.addEventListener('click', onClick);
         return button;
     }
@@ -66,9 +77,9 @@ export class WindowComponent extends EventEmitter {
         const openBtnContainer = createElement('div', { class: ['open-btn-container'] });
         const openBtn = createElement('button', {
             class: ['window-control-btn', 'open-btn'],
-            text: 'Open',
-            attrs: { type: 'button', title: 'Open File' }
+            attrs: { type: 'button', title: 'Open file', 'aria-label': 'Open file' }
         });
+        openBtn.appendChild(this._createIcon('open'));
         
         const openDropdown = createElement('div', { class: ['open-dropdown'] });
         
@@ -77,15 +88,21 @@ export class WindowComponent extends EventEmitter {
             openDropdown.classList.toggle('show');
         });
 
+        document.addEventListener('pointerdown', (event) => {
+            if (!openBtnContainer.contains(event.target)) {
+                openDropdown.classList.remove('show');
+            }
+        });
+
         openBtnContainer.appendChild(openBtn);
         openBtnContainer.appendChild(openDropdown);
         titleLeft.appendChild(openBtnContainer);
 
         const addTabBtn = createElement('button', {
             class: ['window-control-btn', 'tab-add-btn'],
-            text: 'New Tab',
-            attrs: { type: 'button', title: 'New Tab' }
+            attrs: { type: 'button', title: 'New tab', 'aria-label': 'New tab' }
         });
+        addTabBtn.appendChild(this._createIcon('new-tab'));
         addTabBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.emit('addTab');
@@ -99,24 +116,23 @@ export class WindowComponent extends EventEmitter {
             text: this.windowState.title || 'Untitled'
         });
         titleCenter.appendChild(titleText);
-        titleLeft.appendChild(titleCenter);
         
         // RIGHT: Window commands
         const titleRight = createElement('div', { class: ['window-title-right'] });
         
-        const saveBtn = this._makeButton('Save', 'window-save-btn', 'Save', (e) => {
+        const saveBtn = this._makeButton('save', 'window-save-btn', 'Save', (e) => {
             e.stopPropagation();
             this.emit('save');
         });
         
-        const minimizeBtn = this._makeButton('Minimize', 'window-minimize-btn', 'Minimize', (e) => {
+        const minimizeBtn = this._makeButton('minimize', 'window-minimize-btn', 'Minimize', (e) => {
             e.stopPropagation();
             this.windowManager.minimizeWindow(this.windowId);
         });
         
         // Store reference so its label changes with the window state.
         this.maximizeBtn = this._makeButton(
-            this.windowState?.isMaximized ? 'Restore' : 'Maximize',
+            this.windowState?.isMaximized ? 'restore' : 'maximize',
             'window-maximize-btn',
             this.windowState?.isMaximized ? 'Restore' : 'Maximize',
             (e) => {
@@ -129,7 +145,7 @@ export class WindowComponent extends EventEmitter {
             }
         );
         
-        const closeBtn = this._makeButton('Close', 'window-close-btn', 'Close', (e) => {
+        const closeBtn = this._makeButton('close', 'window-close-btn', 'Close', (e) => {
             e.stopPropagation();
             if (confirm('Close this window?')) {
                 this.windowManager.closeWindow(this.windowId);
@@ -137,7 +153,7 @@ export class WindowComponent extends EventEmitter {
         });
         
         titleRight.append(saveBtn, minimizeBtn, this.maximizeBtn, closeBtn);
-        titleBar.append(titleLeft, titleRight);
+        titleBar.append(titleLeft, titleCenter, titleRight);
 
         const content = createElement('div', { class: ['window-content'] });
         
@@ -180,10 +196,10 @@ export class WindowComponent extends EventEmitter {
     updateMaximizeButton() {
         if (this.maximizeBtn && this.windowState) {
             if (this.windowState.isMaximized) {
-                this.maximizeBtn.textContent = 'Restore';
+                this.maximizeBtn.replaceChildren(this._createIcon('restore'));
                 this.maximizeBtn.title = 'Restore';
             } else {
-                this.maximizeBtn.textContent = 'Maximize';
+                this.maximizeBtn.replaceChildren(this._createIcon('maximize'));
                 this.maximizeBtn.title = 'Maximize';
             }
         }
@@ -485,9 +501,9 @@ export class WindowComponent extends EventEmitter {
             // Close button
             const closeBtn = createElement('button', {
                 class: ['tab-close'],
-                text: 'Close',
-                attrs: { type: 'button', title: 'Close tab' }
+                attrs: { type: 'button', title: 'Close tab', 'aria-label': 'Close tab' }
             });
+            closeBtn.appendChild(this._createIcon('close'));
 
             closeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
