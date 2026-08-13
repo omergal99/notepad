@@ -145,6 +145,7 @@ export class StorageEngine extends EventEmitter {
       const now = Date.now();
 
       const note = {
+        ...metadata,
         id: noteId,
         tabId,
         windowId: metadata.windowId || null,
@@ -154,8 +155,7 @@ export class StorageEngine extends EventEmitter {
         lineCount: content.split('\n').length,
         lastModified: now,
         createdAt: metadata.createdAt || now,
-        isDirty: false,
-        ...metadata
+        isDirty: false
       };
 
       await this._dbWrite(STORES.NOTES, note.id, note);

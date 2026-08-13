@@ -481,6 +481,12 @@ export class WindowComponent extends EventEmitter {
                 this.startTabRename(titleElement, tab.id);
             });
 
+            tabElement.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showTabContextMenu(tabElement, tab.id);
+            });
+
             // Save indicator dot
             const saveIndicator = createElement('div', {
                 class: ['tab-save-indicator']
@@ -503,7 +509,9 @@ export class WindowComponent extends EventEmitter {
 
             // Tab click to switch
             tabElement.addEventListener('click', () => {
-                this.switchTab(tab.id);
+                if (tab.id !== activeTabId) {
+                    this.switchTab(tab.id);
+                }
             });
 
             tabElement.append(titleElement, saveIndicator, closeBtn);
@@ -516,6 +524,28 @@ export class WindowComponent extends EventEmitter {
      */
     switchTab(tabId) {
         this.emit('switchTab', { tabId });
+    }
+
+    showTabContextMenu(tabElement, tabId) {
+        this.domElement.querySelectorAll('.tab-context-menu').forEach(menu => menu.remove());
+
+        const menu = createElement('div', { class: ['tab-context-menu'] });
+        const rename = createElement('button', { text: 'Rename', attrs: { type: 'button' } });
+        const save = createElement('button', { text: 'Save', attrs: { type: 'button' } });
+
+        rename.addEventListener('click', () => {
+            const title = query('.tab-title', tabElement);
+            if (title) this.startTabRename(title, tabId);
+            menu.remove();
+        });
+        save.addEventListener('click', () => {
+            this.emit('saveTab', { tabId });
+            menu.remove();
+        });
+
+        menu.append(rename, save);
+        tabElement.appendChild(menu);
+        setTimeout(() => document.addEventListener('pointerdown', () => menu.remove(), { once: true }), 0);
     }
 
     /**

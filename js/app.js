@@ -201,6 +201,7 @@ class NotepadOnlineApp {
         });
 
         component.on('save', () => this.saveCurrentWindow());
+        component.on('saveTab', ({ tabId }) => this.saveTab(tabId));
         component.on('importFile', () => this.importFile(windowId));
         component.on('openRecentFile', ({ fileId }) => this.openRecentFile(windowId, fileId));
         component.on('requestClose', () => {
@@ -233,6 +234,21 @@ class NotepadOnlineApp {
             .slice(0, 8)
             .map(note => ({ id: note.id, name: note.tabTitle || 'Untitled' }));
         component.populateRecentFiles(recentFiles);
+    }
+
+    async saveTab(tabId) {
+        const tab = this.tabManager.getTab(tabId);
+        const editor = this.editorComponents.get(tabId);
+        if (!tab || !editor) return;
+
+        tab.noteId = await this.storage.saveNote(tabId, editor.getContent(), {
+            ...(tab.noteId ? { id: tab.noteId } : {}),
+            tabTitle: tab.title,
+            windowId: tab.windowId
+        });
+        tab.isDirty = false;
+        this.updateWindowTabBar(tab.windowId);
+        this.refreshRecentFiles(tab.windowId);
     }
 
     async importFile(windowId) {
@@ -458,15 +474,19 @@ class NotepadOnlineApp {
         // Theme toggle
         const btnThemeToggle = query('#btn-theme-toggle');
         if (btnThemeToggle) {
-            btnThemeToggle.addEventListener('click', () => {
-                this.themeEngine.toggleDarkMode();
-                const label = this.themeEngine.isDarkMode ? 'Switch to light theme' : 'Switch to dark theme';
+            const updateThemeControl = () => {
+                const isDarkMode = this.themeEngine.isDarkMode;
+                const label = isDarkMode ? 'Switch to light theme' : 'Switch to dark theme';
+                const icon = query('use', btnThemeToggle);
+                if (icon) icon.setAttribute('href', `assets/icons.svg#${isDarkMode ? 'sun' : 'moon'}`);
                 btnThemeToggle.title = label;
                 btnThemeToggle.setAttribute('aria-label', label);
+            };
+            btnThemeToggle.addEventListener('click', () => {
+                this.themeEngine.toggleDarkMode();
+                updateThemeControl();
             });
-            const label = this.themeEngine.isDarkMode ? 'Switch to light theme' : 'Switch to dark theme';
-            btnThemeToggle.title = label;
-            btnThemeToggle.setAttribute('aria-label', label);
+            updateThemeControl();
         }
 
         // Global preferences
@@ -760,6 +780,16 @@ class NotepadOnlineApp {
             });
         }
 
+        const btnClearStorage = query('#btn-clear-storage');
+        if (btnClearStorage) {
+            btnClearStorage.addEventListener('click', () => {
+                this.showConfirmation('Delete all data', 'Delete every saved note, window, preference, and backup? This cannot be undone.', async () => {
+                    await this.storage.clearAll();
+                    window.location.reload();
+                });
+            });
+        }
+
         // Close preferences button
         const btnClosePrefs = query('#btn-close-prefs');
         if (btnClosePrefs) {
@@ -852,7 +882,7 @@ class NotepadOnlineApp {
         
         if (tab && editor) {
             tab.noteId = await this.storage.saveNote(windowState.activeTabId, editor.getContent(), {
-                id: tab.noteId,
+                ...(tab.noteId ? { id: tab.noteId } : {}),
                 tabTitle: tab.title,
                 windowId: activeWindowId
             });

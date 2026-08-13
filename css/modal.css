@@ -99,6 +99,38 @@
     padding: var(--spacing-lg);
 }
 
+#preferences-modal .modal-content {
+    width: min(860px, 92vw);
+}
+
+#preferences-modal .modal-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-lg);
+    align-items: start;
+}
+
+#preferences-modal .prefs-section {
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-cream);
+}
+
+#preferences-modal .prefs-section h3 {
+    margin: 0 0 var(--spacing-sm);
+    font-size: var(--font-size-base);
+}
+
+#preferences-modal .prefs-group.checkbox {
+    flex-direction: row;
+    align-items: center;
+}
+
+#preferences-modal .prefs-group.checkbox input {
+    width: auto;
+}
+
 /* Custom scrollbar in modal */
 .modal-body::-webkit-scrollbar {
     width: 10px;
@@ -617,6 +649,25 @@
     justify-content: flex-end;
 }
 
+.notification-content {
+    border: 1px solid var(--border-color);
+}
+
+.notification-content .notification-body p {
+    color: var(--text-primary);
+}
+
+.btn-danger {
+    background: #C94444;
+    border-color: #C94444;
+    color: #FFFFFF;
+}
+
+.btn-danger:hover {
+    background: #A83232;
+    border-color: #A83232;
+}
+
 body.dark-mode .notification-content {
     background-color: #3C3C41;
     color: #CCCCCC;
@@ -628,4 +679,15 @@ body.dark-mode .notification-header h3 {
 
 body.dark-mode .notification-body p {
     color: #CCCCCC;
+}
+
+body.dark-mode #preferences-modal .prefs-section {
+    background: #343438;
+    border-color: #4A4A4F;
+}
+
+@media (max-width: 680px) {
+    #preferences-modal .modal-body {
+        grid-template-columns: 1fr;
+    }
 }
