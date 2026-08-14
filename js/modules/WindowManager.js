@@ -4,6 +4,7 @@
  */
 
 import { EventEmitter } from '../utils/eventEmitter.js';
+import { getWindowDragBounds } from './WindowDragBounds.js';
 
 const DEFAULT_VIEWPORT = { width: 1200, height: 800 };
 
@@ -230,13 +231,34 @@ export class WindowManager extends EventEmitter {
         if (!window) return;
 
         const viewport = this._viewport();
-        let nextX = x;
-        let nextY = y;
+        let nextX = Number(x) || 0;
+        let nextY = Number(y) || 0;
 
         if (options.allowTitleBarOverflow) {
-            const titleBarHalf = Number(options.titleBarHeight) ? Number(options.titleBarHeight) / 2 : 20;
-            nextX = Math.min(Math.max(Number(x) || 0, -window.width / 2), viewport.width - window.width / 2);
-            nextY = Math.min(Math.max(Number(y) || 0, -titleBarHalf), viewport.height - (window.height - titleBarHalf));
+            const titleBarHeight = Number(options.titleBarHeight) || 40;
+            let containerEl = null;
+            if (typeof document !== 'undefined') {
+                containerEl = document.querySelector('#windows-container');
+            }
+
+            const dragBounds = getWindowDragBounds({
+                x: nextX,
+                y: nextY,
+                width: window.width,
+                height: window.height,
+                titleBarHeight,
+                containerEl,
+                viewport
+            });
+
+            nextX = dragBounds.x;
+            nextY = dragBounds.y;
+
+            window.x = nextX;
+            window.y = nextY;
+            await this._persistWindow(window);
+            this.emit('windowMoved', { windowId, x: window.x, y: window.y });
+            return;
         }
 
         const clamped = this._clampWindow({ ...window, x: nextX, y: nextY });

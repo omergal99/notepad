@@ -171,10 +171,13 @@ export class WindowComponent extends EventEmitter {
 
     createWindowMenu() {
         const menuBar = createElement('div', { class: ['window-menu-bar'] });
+        const supportedActions = new Set(['newWindow', 'newTab', 'save', 'saveAll', 'find', 'replace', 'toggleLineNumbers', 'toggleMinimap', 'toggleStatusBar', 'zoomIn', 'zoomOut', 'resetZoom', 'customZoom', 'print', 'preferences', 'about', 'exit']);
+        const disabledActions = new Set(['undo', 'redo', 'export', 'documentation']);
+
         const menus = [
             ['File', [['New Window', 'newWindow'], ['New Tab', 'newTab'], ['Save', 'save'], ['Save All', 'saveAll'], ['Exit', 'exit']]],
             ['Edit', [['Undo', 'undo'], ['Redo', 'redo'], ['Find', 'find'], ['Replace', 'replace']]],
-            ['View', [['Line Numbers', 'toggleLineNumbers'], ['Minimap', 'toggleMinimap'], ['Status Bar', 'toggleStatusBar'], ['Zoom In', 'zoomIn'], ['Zoom Out', 'zoomOut'], ['Reset Zoom', 'resetZoom']]],
+            ['View', [['Line Numbers', 'toggleLineNumbers'], ['Minimap', 'toggleMinimap'], ['Status Bar', 'toggleStatusBar'], ['Zoom In', 'zoomIn'], ['Zoom Out', 'zoomOut'], ['Reset Zoom', 'resetZoom'], ['Set Zoom…', 'customZoom']]],
             ['Tools', [['Export', 'export'], ['Print', 'print'], ['Preferences', 'preferences']]],
             ['Help', [['About', 'about'], ['Documentation', 'documentation']]]
         ];
@@ -192,7 +195,14 @@ export class WindowComponent extends EventEmitter {
             });
             actions.forEach(([actionLabel, action]) => {
                 const actionButton = createElement('button', { text: actionLabel, attrs: { type: 'button' } });
+                const isEnabled = supportedActions.has(action) && !disabledActions.has(action);
+                if (!isEnabled) {
+                    actionButton.disabled = true;
+                    actionButton.setAttribute('aria-disabled', 'true');
+                    actionButton.classList.add('disabled');
+                }
                 actionButton.addEventListener('click', () => {
+                    if (!isEnabled) return;
                     removeClass(dropdown, 'visible');
                     this.emit('menuAction', { action });
                 });
@@ -543,26 +553,32 @@ export class WindowComponent extends EventEmitter {
                 });
                 closeBtn.appendChild(this._createIcon('close'));
 
-                closeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.emit('closeTab', { tabId: tab.id });
-                });
-
                 tabElement.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     this.showTabContextMenu(tabElement, tab.id);
                 });
 
-                tabElement.addEventListener('click', () => {
-                    if (tab.id !== activeTabId) {
-                        this.switchTab(tab.id);
-                    }
-                });
-
                 tabElement.append(titleElement, saveIndicator, closeBtn);
                 tabBar.appendChild(tabElement);
                 existingTabs.set(tab.id, tabElement);
+            }
+
+            const currentActiveId = this.windowManager.getWindow(this.windowId)?.activeTabId || activeTabId;
+            const tabElementClickHandler = (event) => {
+                if (event.target.closest('.tab-close')) return;
+                if (tab.id !== currentActiveId) {
+                    this.switchTab(tab.id);
+                }
+            };
+            tabElement.onclick = tabElementClickHandler;
+
+            const closeBtn = query('.tab-close', tabElement);
+            if (closeBtn) {
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.emit('closeTab', { tabId: tab.id });
+                };
             }
 
             const titleElement = query('.tab-title', tabElement);

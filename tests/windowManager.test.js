@@ -8,6 +8,27 @@ const viewport = { width: 1200, height: 800 };
 global.window = global.window || { innerWidth: viewport.width, innerHeight: viewport.height };
 
 describe('WindowManager', () => {
+  test('should compute drag bounds from the windows container location', async () => {
+    const { getWindowDragBounds } = await import('../js/modules/WindowDragBounds.js');
+
+    const bounds = getWindowDragBounds({
+      x: 500,
+      y: 200,
+      width: 700,
+      height: 400,
+      titleBarHeight: 40,
+      containerEl: {
+        clientWidth: 900,
+        clientHeight: 640,
+        getBoundingClientRect: () => ({ top: 45, left: 0, width: 900, height: 640, bottom: 685 })
+      },
+      viewport: { width: 1200, height: 800 }
+    });
+
+    assert.strictEqual(bounds.minY, 0, 'Expected the top bound to stay inside the windows container');
+    assert.strictEqual(bounds.maxY, 600, 'Expected the bottom bound to stop at container height minus title bar height');
+  });
+
   test('should create a window with valid default bounds and active focus', async () => {
     const storage = {
       saveWindowState: async (state) => state,
@@ -94,6 +115,29 @@ describe('WindowManager', () => {
     assert.ok(windowState.y >= -windowState.height / 2, 'Expected y to remain at least half a window above the viewport');
     assert.ok(windowState.x <= viewport.width - windowState.width / 2, 'Expected x to remain within half-window of the right edge');
     assert.ok(windowState.y <= viewport.height - windowState.height / 2, 'Expected y to remain within half-window of the bottom edge');
+  });
+
+  test('should allow title-bar drag overflow while keeping the window in the viewport limits', async () => {
+    const storage = {
+      saveWindowState: async (state) => state,
+      deleteWindowState: async () => true,
+      getAllWindowStates: async () => []
+    };
+
+    const { WindowManager } = await import('../js/modules/WindowManager.js');
+    const manager = new WindowManager(storage);
+    const windowId = await manager.createWindow({ title: 'Drag overflow' });
+    const windowState = manager.getWindow(windowId);
+
+    await manager.updateWindowPosition(windowId, -windowState.width / 2 - 20, 10, {
+      allowTitleBarOverflow: true,
+      titleBarHeight: 40
+    });
+
+    const moved = manager.getWindow(windowId);
+    assert.ok(moved.x <= -windowState.width / 2, 'Expected title-bar drag to permit left overflow');
+    assert.ok(moved.x >= -windowState.width / 2, 'Expected left overflow to stop at half a window width');
+    assert.ok(moved.y >= -20, 'Expected top edge to remain within the viewport bounds');
   });
 
   test('should snap a window to the left half of the viewport', async () => {

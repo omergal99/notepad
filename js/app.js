@@ -16,6 +16,7 @@ import { SearchReplaceEngine } from './modules/SearchReplaceEngine.js';
 import { KeyboardShortcuts } from './modules/KeyboardShortcuts.js';
 import { ThemeEngine } from './modules/ThemeEngine.js';
 import { query, queryAll, addListener, createElement, addClass, removeClass, toggle, findMatchingEditor } from './utils/domUtils.js';
+import { DEFAULT_EDITOR_FONT_SIZE, clampZoomPercent, getZoomPercent, getFontSizeFromPercent } from './utils/zoomUtils.js';
 
 class NotepadOnlineApp {
     constructor() {
@@ -178,11 +179,10 @@ class NotepadOnlineApp {
                 await this.renderTab(windowState.id, tabId);
             }
 
-            // Set active tab (default to first tab)
             const activeTabId = windowState.activeTabId || tabIds[0];
             windowState.activeTabId = activeTabId;
+            this.tabManager.activeTabId = activeTabId;
             
-            // Render tab bar with tabs
             component.renderTabs(tabsData, activeTabId);
             
             // Show only active tab's editor
@@ -207,7 +207,10 @@ class NotepadOnlineApp {
         // Handle tab switching
         component.on('switchTab', async (data) => {
             const windowState = this.windowManager.getWindow(windowId);
+            if (!windowState) return;
+
             windowState.activeTabId = data.tabId;
+            this.tabManager.activeTabId = data.tabId;
             await this.storage.saveWindowState(windowState);
             this.showActiveTabEditor(windowId, data.tabId);
             this.updateWindowTabBar(windowId);
@@ -639,13 +642,16 @@ class NotepadOnlineApp {
                 this.toggleActiveEditorPreference('statusBar');
                 break;
             case 'zoomIn':
-                this.adjustActiveEditorFontSize(1);
+                this.adjustActiveEditorFontSize(10, true);
                 break;
             case 'zoomOut':
-                this.adjustActiveEditorFontSize(-1);
+                this.adjustActiveEditorFontSize(-10, true);
                 break;
             case 'resetZoom':
-                this.setActiveEditorFontSize(14);
+                this.setActiveEditorFontSize(DEFAULT_EDITOR_FONT_SIZE);
+                break;
+            case 'customZoom':
+                this.promptForZoomLevel();
                 break;
             case 'export':
                 this.showNotification('Export feature coming soon', 'info', 2000);
@@ -692,17 +698,47 @@ class NotepadOnlineApp {
         if (preference === 'statusBar') editor.setStatusBarVisible(tab.preferences[preference]);
     }
 
-    adjustActiveEditorFontSize(amount) {
+    adjustActiveEditorFontSize(amount, usePercent = false) {
         const { tab } = this.getActiveEditorContext();
         if (!tab) return;
+
+        if (usePercent) {
+            const currentPercent = getZoomPercent(tab.preferences.fontSize || DEFAULT_EDITOR_FONT_SIZE);
+            const nextPercent = clampZoomPercent(currentPercent + Number(amount || 0));
+            const nextFontSize = getFontSizeFromPercent(nextPercent);
+            this.setActiveEditorFontSize(nextFontSize);
+            return;
+        }
+
         this.setActiveEditorFontSize(Math.max(10, Math.min(32, tab.preferences.fontSize + amount)));
     }
 
     setActiveEditorFontSize(fontSize) {
         const { tab, editor } = this.getActiveEditorContext();
         if (!tab || !editor) return;
-        tab.preferences.fontSize = fontSize;
-        editor.setFontSize(fontSize);
+        const clampedFontSize = Math.max(10, Math.min(32, Number(fontSize) || DEFAULT_EDITOR_FONT_SIZE));
+        tab.preferences.fontSize = clampedFontSize;
+        editor.setFontSize(clampedFontSize);
+    }
+
+    promptForZoomLevel() {
+        const { tab } = this.getActiveEditorContext();
+        if (!tab) return;
+
+        const currentPercent = getZoomPercent(tab.preferences.fontSize || DEFAULT_EDITOR_FONT_SIZE);
+        const value = window.prompt(`Set zoom % (current: ${currentPercent}%)`, String(currentPercent));
+        if (value === null) return;
+
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) {
+            this.showNotification('Enter a valid zoom percentage', 'error', 1800);
+            return;
+        }
+
+        const percent = clampZoomPercent(parsed);
+        const nextFontSize = getFontSizeFromPercent(percent);
+        this.setActiveEditorFontSize(nextFontSize);
+        this.showNotification(`Zoom set to ${percent}%`, 'info', 1200);
     }
 
     openFindPrompt() {
@@ -883,6 +919,74 @@ class NotepadOnlineApp {
                 }
                 this.windowManager.bringToTop(windowState.id);
                 this.updateDock();
+            });
+
+            item.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const existingMenu = document.querySelector('.dock-context-menu');
+                if (existingMenu) existingMenu.remove();
+
+                const menu = createElement('div', { class: ['dock-context-menu'] });
+                const options = [
+                    { label: windowState.isMinimized ? 'Restore window' : 'Focus window', action: async () => {
+                        if (windowState.isMinimized) {
+                            await this.windowManager.restoreWindow(windowState.id);
+                        }
+                        this.windowManager.bringToTop(windowState.id);
+                        menu.remove();
+                        this.updateDock();
+                    } },
+                    { label: 'Center window', action: async () => {
+                        const component = this.windowComponents.get(windowState.id);
+                        const viewport = { width: window.innerWidth, height: window.innerHeight };
+                        const centeredX = Math.max(0, (viewport.width - windowState.width) / 2);
+                        const centeredY = Math.max(0, (viewport.height - windowState.height) / 2);
+                        if (component) {
+                            component.windowState.x = centeredX;
+                            component.windowState.y = centeredY;
+                            this.windowManager.updateWindowPosition(windowState.id, centeredX, centeredY);
+                            component.updateDOMPosition();
+                        }
+                        this.windowManager.bringToTop(windowState.id);
+                        menu.remove();
+                    } },
+                    { label: 'Minimize', action: async () => {
+                        await this.windowManager.minimizeWindow(windowState.id);
+                        menu.remove();
+                        this.updateDock();
+                    } },
+                    { label: 'Close window', action: async () => {
+                        this.windowManager.closeWindow(windowState.id);
+                        menu.remove();
+                        this.updateDock();
+                    } }
+                ];
+
+                options.forEach(({ label, action }) => {
+                    const option = createElement('div', { class: ['dock-context-menu-item'], text: label });
+                    option.addEventListener('click', () => action());
+                    menu.appendChild(option);
+                });
+
+                document.body.appendChild(menu);
+
+                const menuWidth = 170;
+                const menuHeight = Math.min(options.length * 34 + 10, 220);
+                const left = Math.min(event.clientX + 8, window.innerWidth - menuWidth - 8);
+                const top = Math.max(8, event.clientY - menuHeight - 8);
+
+                menu.style.position = 'fixed';
+                menu.style.left = `${left}px`;
+                menu.style.top = `${top}px`;
+                menu.style.zIndex = '2000';
+
+                document.addEventListener('pointerdown', (downEvent) => {
+                    if (!menu.contains(downEvent.target) && downEvent.target !== item) {
+                        menu.remove();
+                    }
+                }, { once: true });
             });
 
             this.bottomDock.appendChild(item);
