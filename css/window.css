@@ -24,6 +24,12 @@
     user-select: none;
 }
 
+.window > .resize-handle {
+    display: block;
+    pointer-events: auto;
+    z-index: 30;
+}
+
 .window.active {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px #0078D4;
     z-index: 200;

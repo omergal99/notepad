@@ -90,10 +90,10 @@ describe('WindowManager', () => {
 
     assert.ok(windowState.width <= viewport.width, 'Expected width not to exceed viewport width');
     assert.ok(windowState.height <= viewport.height, 'Expected height not to exceed viewport height');
-    assert.ok(windowState.x >= 0, 'Expected x to remain within left bound');
-    assert.ok(windowState.y >= 0, 'Expected y to remain within top bound');
-    assert.ok(windowState.x <= viewport.width - windowState.width, 'Expected x to remain within right bound');
-    assert.ok(windowState.y <= viewport.height - windowState.height, 'Expected y to remain within bottom bound');
+    assert.ok(windowState.x >= -windowState.width / 2, 'Expected x to remain at least half a window left of the viewport');
+    assert.ok(windowState.y >= -windowState.height / 2, 'Expected y to remain at least half a window above the viewport');
+    assert.ok(windowState.x <= viewport.width - windowState.width / 2, 'Expected x to remain within half-window of the right edge');
+    assert.ok(windowState.y <= viewport.height - windowState.height / 2, 'Expected y to remain within half-window of the bottom edge');
   });
 
   test('should snap a window to the left half of the viewport', async () => {

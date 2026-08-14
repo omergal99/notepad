@@ -378,7 +378,13 @@ export class WindowComponent extends EventEmitter {
                 const deltaY = moveEvent.clientY - this.dragStart.y;
                 const nextX = this.dragStart.startX + deltaX;
                 const nextY = this.dragStart.startY + deltaY;
-                this.windowManager.updateWindowPosition(this.windowId, nextX, nextY);
+                const titleBar = query('.window-title-bar', this.domElement);
+                const titleBarHeight = titleBar ? titleBar.offsetHeight : 40;
+
+                this.windowManager.updateWindowPosition(this.windowId, nextX, nextY, {
+                    allowTitleBarOverflow: true,
+                    titleBarHeight
+                });
                 this.updateDOMPosition();
                 this.rafId = null;
             });

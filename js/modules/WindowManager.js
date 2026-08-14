@@ -225,11 +225,21 @@ export class WindowManager extends EventEmitter {
         this.emit('windowRestored', { windowId });
     }
 
-    async updateWindowPosition(windowId, x, y) {
+    async updateWindowPosition(windowId, x, y, options = {}) {
         const window = this.windows.get(windowId);
         if (!window) return;
 
-        const clamped = this._clampWindow({ ...window, x, y });
+        const viewport = this._viewport();
+        let nextX = x;
+        let nextY = y;
+
+        if (options.allowTitleBarOverflow) {
+            const titleBarHalf = Number(options.titleBarHeight) ? Number(options.titleBarHeight) / 2 : 20;
+            nextX = Math.min(Math.max(Number(x) || 0, -window.width / 2), viewport.width - window.width / 2);
+            nextY = Math.min(Math.max(Number(y) || 0, -titleBarHalf), viewport.height - (window.height - titleBarHalf));
+        }
+
+        const clamped = this._clampWindow({ ...window, x: nextX, y: nextY });
         Object.assign(window, clamped);
         await this._persistWindow(window);
         this.emit('windowMoved', { windowId, x: window.x, y: window.y });
