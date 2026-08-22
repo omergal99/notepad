@@ -96,6 +96,8 @@ class NotepadOnlineApp {
                     // Then render it
                     await this.renderWindow(windowState);
                 }
+                // Re-normalize z-indexes (windows must sit above the top menu).
+                this.windowManager.refreshZIndexes();
 
                 const fallbackActiveWindow = orderedWindows.filter(windowState => !windowState.isMinimized).at(-1);
                 this.windowManager.activeWindowId = (savedActiveWindow || fallbackActiveWindow || orderedWindows.at(-1))?.id || null;

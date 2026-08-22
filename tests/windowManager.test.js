@@ -25,7 +25,7 @@ describe('WindowManager', () => {
       viewport: { width: 1200, height: 800 }
     });
 
-    assert.strictEqual(bounds.minY, 0, 'Expected the top bound to stay inside the windows container');
+    assert.strictEqual(bounds.minY, -45, 'Expected the top bound to allow dragging over the top menu up to the browser screen');
     assert.strictEqual(bounds.maxY, 600, 'Expected the bottom bound to stop at container height minus title bar height');
   });
 

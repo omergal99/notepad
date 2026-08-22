@@ -241,6 +241,9 @@ export class EditorComponent extends EventEmitter {
 
         this.statusBarElement.innerHTML = `
             <div class="status-bar-left">
+                <button class="window-drag-handle" type="button" title="Drag window" aria-label="Drag window">
+                    <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#move"></use></svg>
+                </button>
                 <div class="status-item">
                     <span class="status-label">Line</span>
                     <span class="status-value">${lineNumber}</span>

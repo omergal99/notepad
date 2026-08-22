@@ -7,6 +7,10 @@ import { EventEmitter } from '../utils/eventEmitter.js';
 import { getWindowDragBounds } from './WindowDragBounds.js';
 
 const DEFAULT_VIEWPORT = { width: 1200, height: 800 };
+// Base z-index for windows. Must stay ABOVE #top-menu (see desktop.css)
+// so windows can be dragged over it, and BELOW --z-dock (1000) so the
+// bottom dock always stays on top for navigation.
+const WINDOW_ZINDEX_BASE = 100;
 
 function getViewport() {
     if (typeof window !== 'undefined') {
@@ -48,16 +52,27 @@ export class WindowManager extends EventEmitter {
         const viewport = this._viewport();
         const minWidth = 400;
         const minHeight = 200;
-        const maxWidth = Math.min(viewport.width, viewport.width);
-        const maxHeight = Math.min(viewport.height, viewport.height);
 
         const next = { ...state };
-        next.width = Math.min(Math.max(Number(next.width) || minWidth, minWidth), maxWidth);
-        next.height = Math.min(Math.max(Number(next.height) || minHeight, minHeight), maxHeight);
-        next.x = Math.min(Math.max(Number(next.x) || 0, 0), Math.max(0, viewport.width - next.width));
-        next.y = Math.min(Math.max(Number(next.y) || 0, 0), Math.max(0, viewport.height - next.height));
+        next.width = Math.min(Math.max(Number(next.width) || minWidth, minWidth), viewport.width);
+        next.height = Math.min(Math.max(Number(next.height) || minHeight, minHeight), viewport.height);
 
-        next.zIndex = Number(next.zIndex) || 1;
+        // Reuse the drag bounds so restored/snapped/resized windows obey the
+        // same rules as dragging: free over the top menu, dock stays visible.
+        const containerEl = typeof document !== 'undefined' ? document.querySelector('#windows-container') : null;
+        const bounds = getWindowDragBounds({
+            x: Number(next.x) || 0,
+            y: Number(next.y) || 0,
+            width: next.width,
+            height: next.height,
+            titleBarHeight: 40,
+            containerEl,
+            viewport
+        });
+        next.x = bounds.x;
+        next.y = bounds.y;
+
+        next.zIndex = Number(next.zIndex) || WINDOW_ZINDEX_BASE;
         return next;
     }
 
@@ -78,9 +93,17 @@ export class WindowManager extends EventEmitter {
         this.zIndexStack.forEach((id, index) => {
             const windowState = this.windows.get(id);
             if (windowState) {
-                windowState.zIndex = index + 1;
+                windowState.zIndex = WINDOW_ZINDEX_BASE + index;
             }
         });
+    }
+
+    /**
+     * Public wrapper so callers (e.g. app restore flow) can re-normalize
+     * z-indexes after manipulating the stack directly.
+     */
+    refreshZIndexes() {
+        this._refreshZIndexes();
     }
 
     _syncMinimizedList(windowId, isMinimized) {

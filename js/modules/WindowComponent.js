@@ -61,7 +61,7 @@ export class WindowComponent extends EventEmitter {
         this.domElement.style.top = `${this.windowState.y}px`;
         this.domElement.style.width = `${this.windowState.width}px`;
         this.domElement.style.height = `${this.windowState.height}px`;
-        this.domElement.style.zIndex = String(this.windowState.zIndex || 1);
+        this.domElement.style.zIndex = String(this.windowState.zIndex || 100);
 
         // Generate unique color for this window if not set
         if (!this.windowState.titlebarColor) {
@@ -296,6 +296,16 @@ export class WindowComponent extends EventEmitter {
             this.startDrag(event);
         });
 
+        // The status-bar drag handle is rendered per-tab by EditorComponent,
+        // so use delegation on the window element to catch it reliably.
+        this.domElement.addEventListener('pointerdown', (event) => {
+            if (event.target.closest('.window-drag-handle')) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.startDrag(event);
+            }
+        });
+
         this.domElement.addEventListener('pointerdown', () => {
             this.windowManager.bringToTop(this.windowId);
             this.setActive(true);
@@ -477,7 +487,7 @@ export class WindowComponent extends EventEmitter {
         this.domElement.style.top = `${state.y ?? 0}px`;
         this.domElement.style.width = `${state.width ?? 800}px`;
         this.domElement.style.height = `${state.height ?? 600}px`;
-        this.domElement.style.zIndex = String(state.zIndex || 1);
+        this.domElement.style.zIndex = String(state.zIndex || 100);
     }
 
     setActive(active) {

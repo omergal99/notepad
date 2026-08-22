@@ -119,6 +119,15 @@
         display: none;
     }
 
+    /* Windows are static/full-screen on mobile – no dragging needed */
+    .window-drag-handle {
+        display: none !important;
+    }
+
+    .window-title-bar {
+        cursor: default;
+    }
+
     /* Tab bar adapts to mobile */
     .tab-bar {
         height: 40px;
@@ -184,6 +193,13 @@
         height: 32px;
         padding: 0 var(--spacing-sm);
         font-size: var(--font-size-xs);
+        white-space: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .status-bar::-webkit-scrollbar {
+        display: none;
     }
 
     .status-bar-left,
@@ -425,7 +441,9 @@
     }
 
     .editor-textarea {
-        font-size: var(--font-size-base);
+        /* 16px minimum prevents iOS Safari auto-zoom on focus
+           (!important beats inline font-size set by preferences) */
+        font-size: 16px !important;
         padding: var(--spacing-xs);
         line-height: 1.4;
     }
@@ -603,9 +621,20 @@
         min-width: 44px;
     }
 
-    .window-control-btn {
+    .window-control-btn,
+    .btn-menu-icon {
         width: 40px;
         height: 40px;
+    }
+
+    /* Keep window control buttons compact inside the title bar
+       (44px would break the 40px bar) but still tappable */
+    .window-control-btn.window-minimize-btn,
+    .window-control-btn.window-maximize-btn,
+    .window-control-btn.window-save-btn,
+    .window-control-btn.window-close-btn {
+        min-width: 40px;
+        min-height: 32px;
     }
 
     /* Remove hover effects that don't work on touch */

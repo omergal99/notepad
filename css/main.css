@@ -6,6 +6,7 @@
 :root {
     /* ====== COLOR PALETTE ====== */
     --bg-cream: #F8F7F2;
+    --bg-cream-2: #ebeae2;
     --bg-light: #FFFFFF;
     --bg-dark: #1E1E1E;
     --bg-dark-alt: #252526;
@@ -223,6 +224,7 @@ body {
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* ============================================
@@ -406,6 +408,20 @@ button:disabled {
 
 .hidden {
     display: none !important;
+}
+
+/* Screen-reader only content: visible to search engines and
+   assistive tech, invisible on screen. Used for the SEO h1. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .invisible {

@@ -23,14 +23,16 @@
 
 #top-menu {
     height: 50px;
-    background-color: var(--bg-light);
+    background-color: var(--bg-cream-2);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     padding: 0 var(--spacing-md);
     gap: var(--spacing-md);
     box-shadow: var(--shadow-sm);
-    z-index: calc(var(--z-dock) - 1);
+    /* Low z-index on purpose: floating windows (z-index >= 100) must be
+       able to drag OVER the top menu. The bottom dock keeps --z-dock. */
+    z-index: 5;
     flex-shrink: 0;
 }
 
@@ -85,8 +87,8 @@
 #windows-container {
     flex: 1;
     position: relative;
-    overflow: hidden;
-    margin-bottom: 60px;
+    overflow: unset;
+    margin-bottom: 50px;
 }
 
 /* ============================================

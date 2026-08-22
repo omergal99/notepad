@@ -247,6 +247,53 @@ body.dark-mode .tab-context-menu button {
 }
 
 /* ============================================
+   STATUS BAR DRAG HANDLE
+   Secondary drag affordance inside .status-bar
+   ============================================ */
+
+.window-title-bar,
+.window-drag-handle {
+    /* Smooth pointer dragging on touch / hybrid devices */
+    touch-action: none;
+}
+
+.window-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 22px;
+    margin-right: var(--spacing-xs);
+    padding: 0;
+    background-color: transparent;
+    color: inherit;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: grab;
+    flex-shrink: 0;
+    opacity: 0.75;
+    transition: opacity var(--transition-fast), background-color var(--transition-fast);
+}
+
+.window-drag-handle:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.window-drag-handle:active {
+    cursor: grabbing;
+    opacity: 1;
+}
+
+.window.active .window-drag-handle {
+    opacity: 0.9;
+}
+
+body.dark-mode .window-drag-handle:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ============================================
    WINDOW CONTENT
    ============================================ */
 

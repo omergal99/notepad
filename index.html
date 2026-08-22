@@ -3,50 +3,58 @@
 <head>
     <!-- ======== SEO & META TAGS ======== -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.">
-    <meta name="keywords" content="notepad, online notepad, text editor, private editor, local-first, offline editor, tabbed notepad, desktop notepad">
-    <meta name="author" content="Notepad Online">
-    <meta name="theme-color" content="#F8F7F2">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Notepad Online – Free Private Online Notepad & Text Editor</title>
+    <meta name="description" content="Free online notepad and text editor. Multi-window desktop interface, tabs, auto-save, find & replace and image paste. 100% private – your text never leaves your browser. Works offline.">
+    <meta name="keywords" content="notepad, online notepad, text editor, free notepad, online text editor, private editor, local-first, offline editor, tabbed notepad, notes online">
+    <meta name="author" content="Omer Gal">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://omergal99.github.io/notepad/">
+    <meta name="theme-color" content="#0078D4">
+
+    <!-- Mobile / PWA -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Notepad">
+
     <!-- Open Graph / Social Media -->
+    <meta property="og:site_name" content="Notepad Online">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://example.com/notepad">
-    <meta property="og:title" content="Notepad Online - Private Desktop Text Editor">
-    <meta property="og:description" content="Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.">
-    <meta property="og:image" content="/preview.png">
-    
+    <meta property="og:url" content="https://omergal99.github.io/notepad/">
+    <meta property="og:title" content="Notepad Online – Free Private Online Notepad & Text Editor">
+    <meta property="og:description" content="Free online notepad with a multi-window desktop interface, tabs, auto-save and offline support. 100% private – your text never leaves your browser.">
+    <meta property="og:image" content="https://omergal99.github.io/notepad/assets/preview.png">
+    <meta property="og:locale" content="en_US">
+
     <!-- Twitter Card -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://example.com/notepad">
-    <meta property="twitter:title" content="Notepad Online - Private Desktop Text Editor">
-    <meta property="twitter:description" content="Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.">
-    <meta property="twitter:image" content="/preview.png">
-    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://omergal99.github.io/notepad/">
+    <meta name="twitter:title" content="Notepad Online – Free Private Online Notepad & Text Editor">
+    <meta name="twitter:description" content="Free online notepad with a multi-window desktop interface, tabs, auto-save and offline support. 100% private – your text never leaves your browser.">
+    <meta name="twitter:image" content="https://omergal99.github.io/notepad/assets/preview.png">
+
+    <!-- Google Search Console ownership verification -->
+    <meta name="google-site-verification" content="C3SQXzTF9AH3l1Tef3ZFkvGiLtVjIfrsdxK3CybNcAA">
+
     <!-- JSON-LD Schema (WebApplication) -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "Notepad Online - Private Desktop Text Editor",
-        "url": "https://example.com/notepad",
+        "name": "Notepad Online",
+        "alternateName": "Notepad Online – Private Desktop Text Editor",
+        "url": "https://omergal99.github.io/notepad/",
         "description": "Fast, private, local-first online notepad with multi-window desktop interface, tabs, auto-save, image paste support, and full offline capabilities.",
+        "screenshot": "https://omergal99.github.io/notepad/assets/preview.png",
         "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "All",
+        "operatingSystem": "Any",
         "browserRequirements": "Requires JavaScript ES6 support",
+        "isAccessibleForFree": true,
         "offers": {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD"
-        },
-        "author": {
-            "@type": "Organization",
-            "name": "Notepad Online"
-        },
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "ratingCount": "150"
         },
         "featureList": [
             "Multi-window desktop interface",
@@ -58,11 +66,14 @@
             "Export to multiple formats",
             "Keyboard shortcuts",
             "Dark/Light theme"
-        ]
+        ],
+        "author": {
+            "@type": "Person",
+            "name": "Omer Gal",
+            "url": "https://github.com/omergal99"
+        }
     }
     </script>
-
-    <title>Notepad</title>
     
     <!-- CSP Header -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:;">
@@ -81,6 +92,26 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23F8F7F2' width='192' height='192'/><text x='50%' y='50%' font-size='120' fill='%23333' text-anchor='middle' dy='.3em' font-family='monospace' font-weight='bold'>N</text></svg>">
 </head>
 <body>
+    <!-- ======== CRAWLER / SCREEN-READER CONTENT (visually hidden) ======== -->
+    <header class="sr-only">
+        <h1>Notepad Online – Free Private Online Notepad &amp; Text Editor</h1>
+        <p>
+            Notepad Online is a free online notepad and text editor that works like a desktop app.
+            Open multiple draggable windows, organize notes in tabs, auto-save your work, paste images,
+            find and replace text, and export to TXT, Markdown, HTML, PDF or JSON.
+            Everything is stored locally in your browser – no account, no server, no tracking.
+            Works offline as an installable PWA on desktop, tablet, and mobile.
+        </p>
+        <ul>
+            <li>Multi-window desktop interface</li>
+            <li>Multi-tab editing with auto-save</li>
+            <li>Image clipboard support</li>
+            <li>Search &amp; replace with regex</li>
+            <li>Export to TXT, MD, HTML, PDF, JSON</li>
+            <li>Offline-first progressive web app (PWA)</li>
+        </ul>
+    </header>
+
     <!-- ======== MAIN DESKTOP CANVAS ======== -->
     <div id="desktop-canvas" class="desktop-canvas">
         <!-- Top Menu Bar (Global) -->
@@ -88,9 +119,9 @@
             <div class="menu-logo">Notepad</div>
             <div class="menu-spacer"></div>
             <div class="menu-settings">
+                <button id="btn-new-window" class="btn-menu-icon" title="New window" aria-label="New window"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#plus"></use></svg></button>
                 <button id="btn-global-prefs" class="btn-menu-icon" title="Settings" aria-label="Settings"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#settings"></use></svg></button>
                 <button id="btn-theme-toggle" class="btn-menu-icon" title="Toggle theme" aria-label="Toggle theme"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#moon"></use></svg></button>
-                <button id="btn-new-window" class="btn-menu-icon" title="New window" aria-label="New window"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#new-window"></use></svg></button>
             </div>
         </div>
 
